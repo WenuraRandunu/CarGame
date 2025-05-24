@@ -319,7 +319,7 @@ function startGame() {
   gameLoop();
 
   if (spawnInterval) clearInterval(spawnInterval);
-  spawnInterval = setInterval(spawnItems, 600);
+  spawnInterval = setInterval(spawnItems, 300);
 
   const timerInterval = setInterval(() => {
     if (!gameRunning) return clearInterval(timerInterval);
