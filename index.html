@@ -276,7 +276,7 @@ function spawnItems() {
   // Only check gap between last item in lane to maintain gap of 280px vertically
   const lane = Math.floor(Math.random() * 3);
   const lastItem = items.slice().reverse().find(item => Math.abs(item.x - lanes[lane]) < 5);
-  if (lastItem && lastItem.y > -280) return; // enforce vertical gap
+  if (lastItem && lastItem.y > -140) return; // enforce vertical gap
 
   const rand = Math.random();
   let type;
