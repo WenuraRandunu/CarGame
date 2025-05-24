@@ -23,7 +23,7 @@
     }
     button {
       padding: 5px 10px;
-      margin-right: 5px;
+      margin: 3px;
       font-size: 12px;
       cursor: pointer;
     }
@@ -51,9 +51,19 @@
       border: 2px solid white;
       touch-action: none;
     }
-    #leftPanel img {
-      width: 35%;
-      height: auto;
+    #touchButtons {
+      display: flex;
+      justify-content: center;
+      margin-top: 5px;
+    }
+    .touch-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      margin: 0 10px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
     }
   </style>
 </head>
@@ -68,6 +78,10 @@
     <div id="timer">Time: 20s</div>
   </div>
   <canvas id="gameCanvas" width="330" height="550"></canvas>
+  <div id="touchButtons">
+    <button class="touch-btn" id="leftBtn">⬅️</button>
+    <button class="touch-btn" id="rightBtn">➡️</button>
+  </div>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -76,16 +90,18 @@
     let lives = 3;
     let timeLeft = 20;
     let gameRunning = false;
-    let playerName = "Guest";
     const lanes = [35, 125, 215];
+    const laneElementCount = [0, 0, 0];
     const player = { lane: 1, y: 440, width: 55, height: 66 };
+
+    const wpBase = 'https://2dcargame.wordpress.com/wp-content/uploads';
     const carImage = new Image();
-    carImage.src = 'assets/car.png';
+    carImage.src = `${wpBase}/car.png`;
 
     const icons = [
-      { type: 'group', img: 'assets/group.png' },
-      { type: 'safety', img: 'assets/safety.png' },
-      { type: 'sustainability', img: 'assets/sustainability.png' }
+      { type: 'group', img: `${wpBase}/group.png` },
+      { type: 'safety', img: `${wpBase}/safety.png` },
+      { type: 'sustainability', img: `${wpBase}/sustainability.png` }
     ];
 
     const iconImages = {};
@@ -111,6 +127,7 @@
       lives = 3;
       timeLeft = 20;
       items.length = 0;
+      laneElementCount.fill(0);
       updateInfo();
     }
 
@@ -123,7 +140,6 @@
     function drawRoad() {
       ctx.fillStyle = '#222';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 3;
       ctx.beginPath();
@@ -154,13 +170,15 @@
     function drawItems() {
       items.forEach(item => {
         if (item.type === 'icon') {
-          ctx.drawImage(iconImages[item.iconType], item.x + player.width / 4, item.y, 35, 35);
+          ctx.drawImage(iconImages[item.iconType], item.x, item.y, 50, 50);
         } else {
-          ctx.font = 'bold 16px sans-serif';
+          ctx.fillStyle = item.type === 'point' ? '#1f1' : '#f44';
+          ctx.fillRect(item.x, item.y, 60, 60);
+          ctx.font = 'bold 12px sans-serif';
           ctx.textAlign = 'center';
-          ctx.fillStyle = item.type === 'point' ? '#0f0' : '#f00';
+          ctx.fillStyle = '#000';
           item.word.split('\n').forEach((line, i) => {
-            ctx.fillText(line, item.x + player.width / 2, item.y + 16 + i * 18);
+            ctx.fillText(line, item.x + 30, item.y + 20 + i * 15);
           });
         }
       });
@@ -168,7 +186,7 @@
 
     function moveItems() {
       items.forEach(item => {
-        item.y += 2;
+        item.y += 1.6;
         if (magnetActive && item.type === 'point') {
           const targetX = lanes[player.lane];
           item.x += (targetX - item.x) * 0.1;
@@ -179,7 +197,7 @@
 
     function checkCollisions() {
       items.forEach((item, index) => {
-        const inLane = item.x < lanes[player.lane] + player.width && item.x + player.width > lanes[player.lane];
+        const inLane = item.lane === player.lane;
         const hit = item.y < player.y + player.height && item.y + 20 > player.y;
         if (inLane && hit) {
           if (item.type === 'word') {
@@ -195,34 +213,31 @@
             }
             if (item.iconType === 'sustainability') timeLeft += 5;
           }
+          laneElementCount[item.lane]--;
           items.splice(index, 1);
         }
       });
     }
 
     function spawnItems() {
-      if (Math.random() < 0.07) {
-        const lane = Math.floor(Math.random() * 3);
-        items.push({
-          type: 'point',
-          x: lanes[lane],
-          y: -20,
-          word: pointWords[Math.floor(Math.random() * pointWords.length)]
-        });
-      }
-      if (Math.random() < 0.01) {
-        const lane = Math.floor(Math.random() * 3);
-        items.push({
-          type: 'word',
-          x: lanes[lane],
-          y: -20,
-          word: wordBlocks[Math.floor(Math.random() * wordBlocks.length)]
-        });
-      }
-      if (Math.random() < 0.025) {
-        const lane = Math.floor(Math.random() * 3);
+      const rand = Math.random();
+      let type;
+      if (rand < 0.5) type = 'word';
+      else if (rand < 0.8) type = 'point';
+      else type = 'icon';
+
+      const lane = Math.floor(Math.random() * 3);
+      if (laneElementCount[lane] >= 6) return;
+      laneElementCount[lane]++;
+
+      if (type === 'icon') {
         const icon = icons[Math.floor(Math.random() * icons.length)].type;
-        items.push({ type: 'icon', x: lanes[lane], y: -25, iconType: icon });
+        items.push({ type, lane, x: lanes[lane], y: -25, iconType: icon });
+      } else {
+        const word = type === 'point'
+          ? pointWords[Math.floor(Math.random() * pointWords.length)]
+          : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
+        items.push({ type, lane, x: lanes[lane], y: -20, word });
       }
     }
 
@@ -246,7 +261,6 @@
     }
 
     function startGame() {
-      playerName = prompt("Enter your name:") || "Guest";
       resetGameState();
       gameRunning = true;
       gameLoop();
@@ -268,6 +282,14 @@
 
     document.getElementById('startBtn').addEventListener('click', startGame);
     document.getElementById('resetBtn').addEventListener('click', () => location.reload());
+
+    document.getElementById('leftBtn').addEventListener('click', () => {
+      if (player.lane > 0) player.lane--;
+    });
+
+    document.getElementById('rightBtn').addEventListener('click', () => {
+      if (player.lane < 2) player.lane++;
+    });
 
     document.addEventListener('keydown', e => {
       if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
