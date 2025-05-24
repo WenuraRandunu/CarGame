@@ -65,6 +65,27 @@
       border: none;
       border-radius: 5px;
     }
+    #popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    #popupContent {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    #popupContent h2 {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -81,6 +102,13 @@
   <div id="touchButtons">
     <button class="touch-btn" id="leftBtn">⬅️</button>
     <button class="touch-btn" id="rightBtn">➡️</button>
+  </div>
+  <div id="popup">
+    <div id="popupContent">
+      <h2>Game Over!</h2>
+      <p id="finalScore">Score: 0</p>
+      <button onclick="closePopup()">Close</button>
+    </div>
   </div>
 
   <script>
@@ -293,7 +321,12 @@
 
     function endGame() {
       gameRunning = false;
-      setTimeout(() => alert(`Game Over! Score: ${score}`), 100);
+      document.getElementById('finalScore').innerText = `Score: ${score}`;
+      document.getElementById('popup').style.display = 'flex';
+    }
+
+    function closePopup() {
+      document.getElementById('popup').style.display = 'none';
     }
 
     document.getElementById('startBtn').addEventListener('click', startGame);
