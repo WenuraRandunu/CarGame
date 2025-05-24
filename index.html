@@ -124,12 +124,12 @@
 
     const githubBase = 'https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets';
     const carImage = new Image();
-    carImage.src = ${githubBase}/car.png;
+    carImage.src = `${githubBase}/car.png`;
 
     const icons = [
-      { type: 'group', img: ${githubBase}/group.png },
-      { type: 'safety', img: ${githubBase}/safety.png },
-      { type: 'sustainability', img: ${githubBase}/sustainability.png }
+      { type: 'group', img: `${githubBase}/group.png` },
+      { type: 'safety', img: `${githubBase}/safety.png` },
+      { type: 'sustainability', img: `${githubBase}/sustainability.png` }
     ];
 
     const iconImages = {};
@@ -164,9 +164,9 @@
     }
 
     function updateInfo() {
-      document.getElementById('score').innerText = Score: ${score};
-      document.getElementById('lives').innerText = Lives: ${lives};
-      document.getElementById('timer').innerText = Time: ${timeLeft}s;
+      document.getElementById('score').innerText = `Score: ${score}`;
+      document.getElementById('lives').innerText = `Lives: ${lives}`;
+      document.getElementById('timer').innerText = `Time: ${timeLeft}s`;
     }
 
     function drawRoad() {
@@ -321,7 +321,7 @@
 
     function endGame() {
       gameRunning = false;
-      document.getElementById('finalScore').innerText = Score: ${score};
+      document.getElementById('finalScore').innerText = `Score: ${score}`;
       document.getElementById('popup').style.display = 'flex';
     }
 
