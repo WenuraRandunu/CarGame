@@ -306,28 +306,25 @@
     }
 
     function spawnItems() {
+      const elementHeight = 60; // height of each element
+
       // Spawn 2 to 4 elements per call
       const count = Math.floor(Math.random() * 3) + 2;
       for (let i = 0; i < count; i++) {
-        // Choose type based on new percentages
         const rand = Math.random();
         let type;
         if (rand < 0.4) type = "word"; // 40%
         else if (rand < 0.75) type = "point"; // 35%
         else type = "icon"; // 25%
 
-        // Choose lane randomly
         const lane = Math.floor(Math.random() * 3);
 
-        // Find y-position with a gap from last item in lane
-        let minY = -70;
-        // Check existing items in lane for max y above minY
+        // Find y-position with a gap equal to element height from nearest item in lane
+        let minY = -elementHeight;
         const laneItems = items.filter((it) => it.lane === lane);
         if (laneItems.length) {
-          // Find smallest y (closest to top)
           const minItemY = Math.min(...laneItems.map((it) => it.y));
-          // Set new y so it is at least 70 px above the closest existing item
-          minY = Math.min(minY, minItemY - 70);
+          minY = Math.min(minY, minItemY - elementHeight);
         }
 
         if (type === "icon") {
@@ -366,7 +363,6 @@
       gameRunning = true;
       gameLoop();
 
-      // Timer for the countdown
       const timerInterval = setInterval(() => {
         if (!gameRunning) {
           clearInterval(timerInterval);
@@ -382,8 +378,7 @@
         updateInfo();
       }, 1000);
 
-      // Spawn items every 150ms
-      spawnInterval = setInterval(spawnItems, 150);
+      spawnInterval = setInterval(spawnItems, 400);
     }
 
     function endGame() {
