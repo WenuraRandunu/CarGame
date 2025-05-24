@@ -197,7 +197,8 @@
     }
 
     function checkCollisions() {
-      items.forEach((item, index) => {
+      for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
         const inLane = item.lane === player.lane;
         const hit = item.y < player.y + player.height && item.y + 60 > player.y;
         if (inLane && hit) {
@@ -215,9 +216,9 @@
             if (item.iconType === 'sustainability') timeLeft += 5;
           }
           laneElementCount[item.lane]--;
-          items.splice(index, 1);
+          items.splice(i, 1);
         }
-      });
+      }
     }
 
     function spawnItems() {
@@ -278,7 +279,7 @@
 
     function endGame() {
       gameRunning = false;
-      alert(`Game Over! Score: ${score}`);
+      setTimeout(() => alert(`Game Over! Score: ${score}`), 100);
     }
 
     document.getElementById('startBtn').addEventListener('click', startGame);
