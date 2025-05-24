@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Responsive Car Game</title>
   <style>
     * { box-sizing: border-box; }
@@ -18,9 +18,7 @@
       flex-direction: column;
       overflow: hidden;
     }
-    #controls {
-      margin-bottom: 5px;
-    }
+    #controls { margin-bottom: 5px; }
     button {
       padding: 5px 10px;
       margin: 3px;
@@ -83,9 +81,7 @@
       border-radius: 10px;
       text-align: center;
     }
-    #popupContent h2 {
-      margin-bottom: 10px;
-    }
+    #popupContent h2 { margin-bottom: 10px; }
   </style>
 </head>
 <body>
@@ -114,14 +110,19 @@
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    let score = 0;
-    let lives = 3;
-    let timeLeft = 20;
+
+    const soundGood = new Audio('https://freesound.org/data/previews/320/320181_5260870-lq.mp3');
+    const soundBad = new Audio('https://freesound.org/data/previews/401/401336_5121236-lq.mp3');
+    const soundIcon = new Audio('https://freesound.org/data/previews/466/466253_7037-lq.mp3');
+    soundGood.volume = 0.4;
+    soundBad.volume = 0.4;
+    soundIcon.volume = 0.4;
+
+    let score = 0, lives = 3, timeLeft = 20;
     let gameRunning = false;
     const lanes = [35, 135, 235];
     const laneElementCount = [0, 0, 0];
     const player = { lane: 1, y: 440, width: 55, height: 66 };
-
     const githubBase = 'https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets';
     const carImage = new Image();
     carImage.src = `${githubBase}/car.png`;
@@ -141,22 +142,20 @@
 
     const pointWords = ["DDS", "Centerlines", "Defect\nHandling", "IPS", "UPS", "Kaizen", "5S"];
     const wordBlocks = [
-      "Absenteeism", "Reject", "Rework", "Breakdown",
-      "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay",
-      "Scraps", "Size\nchanges", "Style\nchanges"
+      "Absenteeism", "Reject", "Rework", "Breakdown", "Powercut",
+      "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"
     ];
 
     const items = [];
-    let magnetActive = false;
-    let magnetTimer = 0;
-    let speed = 1.3;
+    let magnetActive = false, magnetTimer = 0;
+    let speed = 1.6;
     let lastSpeedIncrease = Date.now();
 
     function resetGameState() {
       score = 0;
       lives = 3;
       timeLeft = 20;
-      speed = 1.3;
+      speed = 1.6;
       lastSpeedIncrease = Date.now();
       items.length = 0;
       laneElementCount.fill(0);
@@ -206,12 +205,13 @@
         } else {
           ctx.font = 'bold 12px sans-serif';
           ctx.textAlign = 'center';
-          ctx.fillStyle = item.type === 'point' ? '#90EE90' : '#FF6961';
+          const color = item.type === 'point' ? '#00ff90' : '#ff5c5c';
+          ctx.fillStyle = color;
+          ctx.strokeStyle = color;
           const lines = item.word.split('\n');
           lines.forEach((line, i) => {
             ctx.fillText(line, item.x + 30, item.y + 20 + i * 15);
           });
-          ctx.strokeStyle = item.type === 'point' ? '#90EE90' : '#FF6961';
           ctx.strokeRect(item.x + 5, item.y + 5, 50, 50);
         }
       });
@@ -241,11 +241,14 @@
         const hit = item.y < player.y + player.height && item.y + 60 > player.y;
         if (inLane && hit) {
           if (item.type === 'word') {
+            soundBad.play();
             lives--;
             if (lives <= 0) return endGame();
           } else if (item.type === 'point') {
+            soundGood.play();
             score += 5;
           } else if (item.type === 'icon') {
+            soundIcon.play();
             if (item.iconType === 'group') lives++;
             if (item.iconType === 'safety') {
               magnetActive = true;
@@ -260,19 +263,22 @@
     }
 
     function spawnItems() {
-      const rand = Math.random();
-      let type;
-      if (rand < 0.5) type = 'word';
-      else if (rand < 0.8) type = 'point';
-      else type = 'icon';
+      const spawnRate = 0.1;
+      if (Math.random() > spawnRate) return;
 
       const lane = Math.floor(Math.random() * 3);
-      if (laneElementCount[lane] >= 6) return;
+      const count = laneElementCount[lane];
 
+      if (count >= 6) return;
       const lastItem = items.findLast(item => item.lane === lane);
       if (lastItem && lastItem.y > -140) return;
 
       laneElementCount[lane]++;
+      let type;
+      const rand = Math.random();
+      if (rand < 0.5) type = 'word';
+      else if (rand < 0.8) type = 'point';
+      else type = 'icon';
 
       if (type === 'icon') {
         const icon = icons[Math.floor(Math.random() * icons.length)].type;
@@ -293,13 +299,11 @@
       drawItems();
       moveItems();
       checkCollisions();
-      if (Math.random() < 0.05) spawnItems();
-
+      spawnItems();
       if (magnetActive) {
         magnetTimer--;
         if (magnetTimer <= 0) magnetActive = false;
       }
-
       updateInfo();
       requestAnimationFrame(gameLoop);
     }
