@@ -1,125 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Responsive Car Game</title>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: #111;
-    font-family: sans-serif;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  #controls {
-    margin-bottom: 5px;
-  }
-  button {
-    padding: 5px 10px;
-    margin: 3px;
-    font-size: 12px;
-    cursor: pointer;
-  }
-  #container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    height: 90vh;
-  }
-  #infoBar {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 5px;
-    font-size: 14px;
-  }
-  #gameCanvas {
-    width: 95vw;
-    max-width: 330px;
-    height: auto;
-    aspect-ratio: 3 / 5;
-    background: #333;
-    border: 2px solid white;
-    touch-action: none;
-  }
-  #touchButtons {
-    display: flex;
-    justify-content: center;
-    margin-top: 5px;
-  }
-  .touch-btn {
-    padding: 10px 20px;
-    font-size: 14px;
-    margin: 0 10px;
-    background: #444;
-    color: white;
-    border: none;
-    border-radius: 5px;
-  }
-  #popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.8);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-  }
-  #popupContent {
-    background: #222;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-  }
-  #popupContent h2 {
-    margin-bottom: 10px;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Responsive Car Game</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #111;
+      font-family: sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #controls {
+      margin-bottom: 5px;
+    }
+    button {
+      padding: 5px 10px;
+      margin: 3px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: 90vh;
+    }
+    #infoBar {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    #gameCanvas {
+      width: 95vw;
+      max-width: 330px;
+      height: auto;
+      aspect-ratio: 3 / 5;
+      background: #333;
+      border: 2px solid white;
+      touch-action: none;
+    }
+    #touchButtons {
+      display: flex;
+      justify-content: center;
+      margin-top: 5px;
+    }
+    .touch-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      margin: 0 10px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+    #popupContent {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-<div id="controls">
-  <button id="startBtn">Start Game</button>
-  <button id="resetBtn">Reset Game</button>
-</div>
-<div id="infoBar">
-  <div id="lives">Lives: 3</div>
-  <div id="score">Score: 0</div>
-  <div id="timer">Time: 20s</div>
-</div>
-<canvas id="gameCanvas" width="330" height="550"></canvas>
-<div id="touchButtons">
-  <button class="touch-btn" id="leftBtn">⬅️</button>
-  <button class="touch-btn" id="rightBtn">➡️</button>
-</div>
-<div id="popup">
-  <div id="popupContent">
-    <h2>Game Over!</h2>
-    <p id="finalScore">Score: 0</p>
-    <button onclick="closePopup()">Close</button>
+  <div id="controls">
+    <button id="startBtn">Start Game</button>
+    <button id="resetBtn">Reset Game</button>
   </div>
-</div>
+  <div id="infoBar">
+    <div id="lives">Lives: 3</div>
+    <div id="score">Score: 0</div>
+    <div id="timer">Time: 20s</div>
+  </div>
+  <canvas id="gameCanvas" width="330" height="550"></canvas>
+  <div id="touchButtons">
+    <button class="touch-btn" id="leftBtn">⬅️</button>
+    <button class="touch-btn" id="rightBtn">➡️</button>
+  </div>
+  <div id="popup">
+    <div id="popupContent">
+      <h2>Game Over!</h2>
+      <p id="finalScore">Score: 0</p>
+      <button onclick="closePopup()">Close</button>
+    </div>
+  </div>
+
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-let score = 0;
-let lives = 3;
-let timeLeft = 20;
-let gameRunning = false;
 const lanes = [35, 135, 235];
-const player = { lane: 1, y: 440, width: 55, height: 66 };
 const githubBase = 'https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets';
+
+const player = { lane: 1, y: 440, width: 55, height: 66 };
+let score = 0, lives = 3, timeLeft = 20;
+let gameRunning = false;
+let magnetActive = false, magnetTimer = 0;
+let speed = 1.5, lastSpeedIncrease = Date.now();
+const items = [];
+
 const carImage = new Image();
 carImage.src = `${githubBase}/car.png`;
 
@@ -128,7 +129,6 @@ const icons = [
   { type: 'safety', img: `${githubBase}/safety.png` },
   { type: 'sustainability', img: `${githubBase}/sustainability.png` }
 ];
-
 const iconImages = {};
 icons.forEach(icon => {
   const img = new Image();
@@ -143,27 +143,17 @@ const wordBlocks = [
   "Scraps", "Size\nchanges", "Style\nchanges"
 ];
 
-const items = [];
-let magnetActive = false;
-let magnetTimer = 0;
-let speed = 1.5;
-let lastSpeedIncrease = Date.now();
-let spawnInterval;
-
-function resetGameState() {
-  score = 0;
-  lives = 3;
-  timeLeft = 20;
-  speed = 1.5;
-  lastSpeedIncrease = Date.now();
-  items.length = 0;
-  updateInfo();
-}
-
 function updateInfo() {
   document.getElementById('score').innerText = `Score: ${score}`;
   document.getElementById('lives').innerText = `Lives: ${lives}`;
   document.getElementById('timer').innerText = `Time: ${timeLeft}s`;
+}
+
+function resetGameState() {
+  score = 0; lives = 3; timeLeft = 20;
+  speed = 1.5;
+  items.length = 0;
+  updateInfo();
 }
 
 function drawRoad() {
@@ -172,10 +162,8 @@ function drawRoad() {
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(5, 0);
-  ctx.lineTo(5, canvas.height);
-  ctx.moveTo(canvas.width - 5, 0);
-  ctx.lineTo(canvas.width - 5, canvas.height);
+  ctx.moveTo(5, 0); ctx.lineTo(5, canvas.height);
+  ctx.moveTo(canvas.width - 5, 0); ctx.lineTo(canvas.width - 5, canvas.height);
   ctx.stroke();
 
   ctx.strokeStyle = '#bbb';
@@ -206,16 +194,12 @@ function drawItems() {
       ctx.textBaseline = 'middle';
       ctx.fillStyle = item.type === 'point' ? '#90EE90' : '#FF6961';
       const lines = item.word.split('\n');
-      const boxWidth = 60;
-      const boxHeight = 60;
-      const boxX = item.x + 5;
-      const boxY = item.y + 5;
-      ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+      const boxX = item.x + 5, boxY = item.y + 5, boxW = 60, boxH = 60;
+      ctx.fillRect(boxX, boxY, boxW, boxH);
       ctx.fillStyle = '#000';
       const lineHeight = 14;
-      const totalTextHeight = lines.length * lineHeight;
       lines.forEach((line, i) => {
-        ctx.fillText(line, boxX + boxWidth / 2, boxY + boxHeight / 2 - totalTextHeight / 2 + i * lineHeight + lineHeight / 2);
+        ctx.fillText(line, boxX + boxW/2, boxY + boxH/2 - (lines.length * lineHeight)/2 + i * lineHeight + lineHeight/2);
       });
     }
   });
@@ -229,10 +213,9 @@ function moveItems() {
       item.x += (targetX - item.x) * 0.1;
       item.y += (player.y - item.y) * 0.05;
     }
-    if (item.y > canvas.height + 70) {
-      items.splice(idx, 1);
-    }
+    if (item.y > canvas.height + 70) items.splice(idx, 1);
   });
+
   const now = Date.now();
   if (now - lastSpeedIncrease >= 5000) {
     speed *= 1.2;
@@ -246,45 +229,52 @@ function checkCollisions() {
     const inLane = Math.abs(item.x - lanes[player.lane]) < 10;
     const hit = item.y < player.y + player.height && item.y + 60 > player.y;
     if (inLane && hit) {
-      if (item.type === 'word') lives--;
-      else if (item.type === 'point') score += 5;
-      else if (item.type === 'icon') {
+      if (item.type === 'word') {
+        lives--;
+        if (lives <= 0) return endGame();
+      } else if (item.type === 'point') {
+        score += 5;
+      } else if (item.type === 'icon') {
         if (item.iconType === 'group') lives++;
-        if (item.iconType === 'safety') { magnetActive = true; magnetTimer = 300; }
+        if (item.iconType === 'safety') {
+          magnetActive = true;
+          magnetTimer = 300;
+        }
         if (item.iconType === 'sustainability') timeLeft += 5;
       }
       items.splice(i, 1);
-      if (lives <= 0) return endGame();
     }
   }
 }
 
 function spawnItems() {
-  for (let i = 0; i < 2; i++) {
-    const lane = Math.floor(Math.random() * 3);
-    const rand = Math.random();
-    let type = rand < 0.4 ? 'word' : rand < 0.75 ? 'point' : 'icon';
-    if (type === 'icon') {
-      const icon = icons[Math.floor(Math.random() * icons.length)].type;
-      items.push({ type, lane, x: lanes[lane], y: -70, iconType: icon });
-    } else {
-      const word = type === 'point'
-        ? pointWords[Math.floor(Math.random() * pointWords.length)]
-        : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
-      items.push({ type, lane, x: lanes[lane], y: -70, word });
-    }
+  const lane = Math.floor(Math.random() * 3);
+  const laneX = lanes[lane];
+  const lastInLane = items.slice().reverse().find(item => item.x === laneX);
+  if (lastInLane && lastInLane.y < 130) return; // 60px item + 70px gap
+
+  const rand = Math.random();
+  let type = rand < 0.4 ? 'word' : rand < 0.75 ? 'point' : 'icon';
+
+  if (type === 'icon') {
+    const icon = icons[Math.floor(Math.random() * icons.length)].type;
+    items.push({ type, lane, x: laneX, y: -70, iconType: icon });
+  } else {
+    const word = type === 'point'
+      ? pointWords[Math.floor(Math.random() * pointWords.length)]
+      : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
+    items.push({ type, lane, x: laneX, y: -70, word });
   }
 }
 
 function gameLoop() {
   if (!gameRunning) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawRoad();
-  drawPlayer();
-  drawItems();
-  moveItems();
-  checkCollisions();
-  if (magnetActive && --magnetTimer <= 0) magnetActive = false;
+  drawRoad(); drawPlayer(); drawItems(); moveItems(); checkCollisions();
+  if (magnetActive) {
+    magnetTimer--;
+    if (magnetTimer <= 0) magnetActive = false;
+  }
   updateInfo();
   requestAnimationFrame(gameLoop);
 }
@@ -294,7 +284,7 @@ function startGame() {
   gameRunning = true;
   gameLoop();
   if (spawnInterval) clearInterval(spawnInterval);
-  spawnInterval = setInterval(spawnItems, 30); // spawn faster
+  spawnInterval = setInterval(spawnItems, 60);
   const timerInterval = setInterval(() => {
     if (!gameRunning) return clearInterval(timerInterval);
     timeLeft--;
@@ -309,11 +299,10 @@ function startGame() {
 
 function endGame() {
   gameRunning = false;
-  if (spawnInterval) clearInterval(spawnInterval);
+  clearInterval(spawnInterval);
   document.getElementById('finalScore').innerText = `Score: ${score}`;
   document.getElementById('popup').style.display = 'flex';
 }
-
 function closePopup() {
   document.getElementById('popup').style.display = 'none';
 }
@@ -330,7 +319,7 @@ canvas.addEventListener('touchstart', e => {
   const touchX = e.touches[0].clientX;
   const mid = window.innerWidth / 2;
   if (touchX < mid && player.lane > 0) player.lane--;
-  if (touchX >= mid && player.lane < 2) player.lane++;
+  else if (touchX >= mid && player.lane < 2) player.lane++;
 });
 </script>
 </body>
