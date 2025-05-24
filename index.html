@@ -110,7 +110,6 @@
     <button onclick="closePopup()">Close</button>
   </div>
 </div>
-
 <script>
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -120,7 +119,6 @@ let timeLeft = 20;
 let gameRunning = false;
 const lanes = [35, 135, 235];
 const player = { lane: 1, y: 440, width: 55, height: 66 };
-
 const githubBase = 'https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets';
 const carImage = new Image();
 carImage.src = `${githubBase}/car.png`;
@@ -148,7 +146,7 @@ const wordBlocks = [
 const items = [];
 let magnetActive = false;
 let magnetTimer = 0;
-let speed = 1.5;  // starting speed as requested
+let speed = 1.5;
 let lastSpeedIncrease = Date.now();
 let spawnInterval;
 
@@ -212,10 +210,8 @@ function drawItems() {
       const boxHeight = 60;
       const boxX = item.x + 5;
       const boxY = item.y + 5;
-
       ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-
-      ctx.fillStyle = '#000'; // black text
+      ctx.fillStyle = '#000';
       const lineHeight = 14;
       const totalTextHeight = lines.length * lineHeight;
       lines.forEach((line, i) => {
@@ -228,19 +224,15 @@ function drawItems() {
 function moveItems() {
   items.forEach((item, idx) => {
     item.y += speed;
-
     if (magnetActive && item.type === 'point') {
       const targetX = lanes[player.lane];
       item.x += (targetX - item.x) * 0.1;
       item.y += (player.y - item.y) * 0.05;
     }
-
     if (item.y > canvas.height + 70) {
       items.splice(idx, 1);
     }
   });
-
-  // Speed increase every 5 seconds by 20%
   const now = Date.now();
   if (now - lastSpeedIncrease >= 5000) {
     speed *= 1.2;
@@ -254,44 +246,33 @@ function checkCollisions() {
     const inLane = Math.abs(item.x - lanes[player.lane]) < 10;
     const hit = item.y < player.y + player.height && item.y + 60 > player.y;
     if (inLane && hit) {
-      if (item.type === 'word') {
-        lives--;
-        if (lives <= 0) return endGame();
-      } else if (item.type === 'point') {
-        score += 5;
-      } else if (item.type === 'icon') {
+      if (item.type === 'word') lives--;
+      else if (item.type === 'point') score += 5;
+      else if (item.type === 'icon') {
         if (item.iconType === 'group') lives++;
-        if (item.iconType === 'safety') {
-          magnetActive = true;
-          magnetTimer = 300;
-        }
+        if (item.iconType === 'safety') { magnetActive = true; magnetTimer = 300; }
         if (item.iconType === 'sustainability') timeLeft += 5;
       }
       items.splice(i, 1);
+      if (lives <= 0) return endGame();
     }
   }
 }
 
 function spawnItems() {
-  // Only check gap between last item in lane to maintain gap of 280px vertically
-  const lane = Math.floor(Math.random() * 3);
-  const lastItem = items.slice().reverse().find(item => Math.abs(item.x - lanes[lane]) < 5);
-  if (lastItem && lastItem.y > -70) return; // enforce vertical gap
-
-  const rand = Math.random();
-  let type;
-  if (rand < 0.4) type = 'word';
-  else if (rand < 0.75) type = 'point';
-  else type = 'icon';
-
-  if (type === 'icon') {
-    const icon = icons[Math.floor(Math.random() * icons.length)].type;
-    items.push({ type, lane, x: lanes[lane], y: -70, iconType: icon });
-  } else {
-    const word = type === 'point'
-      ? pointWords[Math.floor(Math.random() * pointWords.length)]
-      : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
-    items.push({ type, lane, x: lanes[lane], y: -70, word });
+  for (let i = 0; i < 2; i++) {
+    const lane = Math.floor(Math.random() * 3);
+    const rand = Math.random();
+    let type = rand < 0.4 ? 'word' : rand < 0.75 ? 'point' : 'icon';
+    if (type === 'icon') {
+      const icon = icons[Math.floor(Math.random() * icons.length)].type;
+      items.push({ type, lane, x: lanes[lane], y: -70, iconType: icon });
+    } else {
+      const word = type === 'point'
+        ? pointWords[Math.floor(Math.random() * pointWords.length)]
+        : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
+      items.push({ type, lane, x: lanes[lane], y: -70, word });
+    }
   }
 }
 
@@ -303,12 +284,7 @@ function gameLoop() {
   drawItems();
   moveItems();
   checkCollisions();
-
-  if (magnetActive) {
-    magnetTimer--;
-    if (magnetTimer <= 0) magnetActive = false;
-  }
-
+  if (magnetActive && --magnetTimer <= 0) magnetActive = false;
   updateInfo();
   requestAnimationFrame(gameLoop);
 }
@@ -317,11 +293,8 @@ function startGame() {
   resetGameState();
   gameRunning = true;
   gameLoop();
-
- // Change the spawn time from here
   if (spawnInterval) clearInterval(spawnInterval);
-  spawnInterval = setInterval(spawnItems, 50);
-
+  spawnInterval = setInterval(spawnItems, 30); // spawn faster
   const timerInterval = setInterval(() => {
     if (!gameRunning) return clearInterval(timerInterval);
     timeLeft--;
@@ -347,12 +320,8 @@ function closePopup() {
 
 document.getElementById('startBtn').addEventListener('click', startGame);
 document.getElementById('resetBtn').addEventListener('click', () => location.reload());
-document.getElementById('leftBtn').addEventListener('click', () => {
-  if (player.lane > 0) player.lane--;
-});
-document.getElementById('rightBtn').addEventListener('click', () => {
-  if (player.lane < 2) player.lane++;
-});
+document.getElementById('leftBtn').addEventListener('click', () => { if (player.lane > 0) player.lane--; });
+document.getElementById('rightBtn').addEventListener('click', () => { if (player.lane < 2) player.lane++; });
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
   if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
