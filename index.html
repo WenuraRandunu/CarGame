@@ -142,6 +142,10 @@
     const pointWords = ["DDS", "Centerlines", "Defect\nHandling", "IPS", "UPS", "Kaizen", "5S"];
     const wordBlocks = ["Absenteeism", "Reject", "Rework", "Breakdown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
 
+    const bgMusic = new Audio(`${githubBase}/bg.mp3`);
+    bgMusic.loop = true;
+    bgMusic.volume = 0.4;
+
     function drawItems() {
       laneItems.forEach(lane => {
         lane.forEach(item => {
@@ -221,10 +225,15 @@
     document.getElementById('startBtn').onclick = () => {
       if (!gameRunning) {
         gameRunning = true;
+        bgMusic.play();
         gameLoop();
       }
     };
-    document.getElementById('resetBtn').onclick = () => window.location.reload();
+    document.getElementById('resetBtn').onclick = () => {
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+      window.location.reload();
+    };
     document.getElementById('leftBtn').onclick = () => player.lane = Math.max(0, player.lane - 1);
     document.getElementById('rightBtn').onclick = () => player.lane = Math.min(2, player.lane + 1);
     window.addEventListener('keydown', e => {
