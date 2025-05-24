@@ -94,14 +94,14 @@
     const laneElementCount = [0, 0, 0];
     const player = { lane: 1, y: 440, width: 55, height: 66 };
 
-    const wpBase = 'https://2dcargame.wordpress.com/wp-content/uploads';
+    const githubBase = 'https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets';
     const carImage = new Image();
-    carImage.src = `${wpBase}/car.png`;
+    carImage.src = `${githubBase}/car.png`;
 
     const icons = [
-      { type: 'group', img: `${wpBase}/group.png` },
-      { type: 'safety', img: `${wpBase}/safety.png` },
-      { type: 'sustainability', img: `${wpBase}/sustainability.png` }
+      { type: 'group', img: `${githubBase}/group.png` },
+      { type: 'safety', img: `${githubBase}/safety.png` },
+      { type: 'sustainability', img: `${githubBase}/sustainability.png` }
     ];
 
     const iconImages = {};
@@ -187,7 +187,7 @@
 
     function moveItems() {
       items.forEach(item => {
-        item.y += 1.3; // Slower speed
+        item.y += 1.3;
         if (magnetActive && item.type === 'point') {
           const targetX = lanes[player.lane];
           item.x += (targetX - item.x) * 0.1;
