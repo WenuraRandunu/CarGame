@@ -308,7 +308,7 @@
       document.getElementById("finalScore").innerText = `Score: ${score}`;
       document.getElementById("popup").style.display = "flex";
 
-      fetch("https://docs.google.com/spreadsheets/d/1dr2f_x0-QVnJd13n2KnQzvEU_4Kdzbgrp2zi64vCh9c/edit?usp=sharing", {
+      fetch("https://script.google.com/macros/s/AKfycbyvk2E4KkBVTJjhee1mZbJdCqajp9vqDkrVlt8l2TCHAdbeDrEMtjlaQiN_sEe1C4curw/exec", {
         method: "POST",
         body: JSON.stringify({
           name: userData.name,
