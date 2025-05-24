@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Car Game with Sound</title>
+  <title>Car Game with Sound & Volume Controls</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -12,31 +12,32 @@
       font-family: sans-serif;
       color: #fff;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
       height: 100vh;
-      flex-direction: column;
       overflow: hidden;
     }
-    #controls { margin-bottom: 5px; }
-    button {
-      padding: 5px 10px;
-      margin: 3px;
+    #controls, #volumeControls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 5px;
+    }
+    button, input[type=range] {
+      padding: 5px;
       font-size: 12px;
-      cursor: pointer;
     }
     #infoBar {
       display: flex;
       justify-content: space-around;
       width: 100%;
       max-width: 400px;
-      margin-bottom: 5px;
       font-size: 14px;
     }
     #gameCanvas {
       width: 95vw;
       max-width: 330px;
-      aspect-ratio: 3/5;
+      aspect-ratio: 3 / 5;
       background: #333;
       border: 2px solid white;
       touch-action: none;
@@ -44,12 +45,11 @@
     #touchButtons {
       display: flex;
       justify-content: center;
-      margin-top: 5px;
+      gap: 20px;
+      margin: 5px;
     }
     .touch-btn {
       padding: 10px 20px;
-      font-size: 14px;
-      margin: 0 10px;
       background: #444;
       color: white;
       border: none;
@@ -57,10 +57,8 @@
     }
     #popup {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
       background: rgba(0, 0, 0, 0.8);
       display: none;
       align-items: center;
@@ -78,7 +76,7 @@
 <body>
   <div id="controls">
     <button id="startBtn">Start Game</button>
-    <button id="resetBtn">Reset</button>
+    <button id="resetBtn">Reset Game</button>
   </div>
   <div id="infoBar">
     <div id="lives">Lives: 3</div>
@@ -90,6 +88,10 @@
     <button class="touch-btn" id="leftBtn">⬅️</button>
     <button class="touch-btn" id="rightBtn">➡️</button>
   </div>
+  <div id="volumeControls">
+    BGM <input type="range" id="bgVolume" min="0" max="1" step="0.01" value="0.5">
+    SFX <input type="range" id="sfxVolume" min="0" max="1" step="0.01" value="0.7">
+  </div>
   <div id="popup">
     <div id="popupContent">
       <h2>Game Over!</h2>
@@ -99,64 +101,70 @@
   </div>
 
   <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
     const lanes = [35, 135, 235];
-    const laneElementCount = [0, 0, 0];
     const player = { lane: 1, y: 440, width: 55, height: 66 };
     const items = [];
-    let score = 0, lives = 3, timeLeft = 20, gameRunning = false;
-    let speed = 1.3, lastSpeedIncrease = Date.now();
-    let magnetActive = false, magnetTimer = 0;
-
-    const githubBase = 'https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets';
-    const carImage = new Image();
-    carImage.src = `${githubBase}/car.png`;
-
-    const icons = ['group', 'safety', 'sustainability'];
-    const iconImages = {};
-    icons.forEach(icon => {
-      const img = new Image();
-      img.src = `${githubBase}/${icon}.png`;
-      iconImages[icon] = img;
-    });
-
+    const laneElementCount = [0, 0, 0];
     const pointWords = ["DDS", "Centerlines", "Defect\nHandling", "IPS", "UPS", "Kaizen", "5S"];
     const wordBlocks = ["Absenteeism", "Reject", "Rework", "Breakdown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
+    const githubBase = "https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets";
 
-    // Audio setup
-    const bgMusic = new Audio(`${githubBase}/bg.mp3`);
-    // const soundPoint = new Audio(`${githubBase}/point.mp3`);
-    // const soundWord = new Audio(`${githubBase}/word.mp3`);
-    // const soundIcon = new Audio(`${githubBase}/icon.mp3`);
-    bgMusic.loop = true;
-    bgMusic.volume = 0.5;
+    let score = 0, lives = 3, timeLeft = 20, gameRunning = false;
+    let speed = 1.3, lastSpawn = 0, magnetActive = false, magnetTimer = 0;
+
+    const carImage = new Image(); carImage.src = `${githubBase}/car.png`;
+    const icons = [
+      { type: "group", img: `${githubBase}/group.png` },
+      { type: "safety", img: `${githubBase}/safety.png` },
+      { type: "sustainability", img: `${githubBase}/sustainability.png` }
+    ];
+    const iconImages = {};
+    icons.forEach(i => { const img = new Image(); img.src = i.img; iconImages[i.type] = img; });
+
+    // Audio
+    const bgm = new Audio(`${githubBase}/bg-music.mp3`);
+    bgm.loop = true;
+    const sfx = {
+      collect: new Audio(`${githubBase}/collect.mp3`),
+      hit: new Audio(`${githubBase}/hit.mp3`),
+      powerup: new Audio(`${githubBase}/powerup.mp3`)
+    };
+
+    function setVolumes() {
+      bgm.volume = document.getElementById("bgVolume").value;
+      Object.values(sfx).forEach(a => a.volume = document.getElementById("sfxVolume").value);
+    }
+
+    document.getElementById("bgVolume").oninput = setVolumes;
+    document.getElementById("sfxVolume").oninput = setVolumes;
+
+    function resetGameState() {
+      score = 0; lives = 3; timeLeft = 20;
+      speed = 1.3; magnetActive = false; magnetTimer = 0;
+      items.length = 0;
+      laneElementCount.fill(0);
+      updateInfo();
+    }
 
     function updateInfo() {
-      document.getElementById('score').innerText = `Score: ${score}`;
-      document.getElementById('lives').innerText = `Lives: ${lives}`;
-      document.getElementById('timer').innerText = `Time: ${timeLeft}s`;
+      document.getElementById("score").innerText = `Score: ${score}`;
+      document.getElementById("lives").innerText = `Lives: ${lives}`;
+      document.getElementById("timer").innerText = `Time: ${timeLeft}s`;
     }
 
     function drawRoad() {
-      ctx.fillStyle = '#222';
+      ctx.fillStyle = "#222";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(5, 0);
-      ctx.lineTo(5, canvas.height);
-      ctx.moveTo(canvas.width - 5, 0);
-      ctx.lineTo(canvas.width - 5, canvas.height);
-      ctx.stroke();
-      ctx.setLineDash([10, 10]);
-      ctx.strokeStyle = '#bbb';
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(5, canvas.height);
+      ctx.moveTo(canvas.width - 5, 0); ctx.lineTo(canvas.width - 5, canvas.height); ctx.stroke();
+      ctx.setLineDash([10, 10]); ctx.strokeStyle = "#bbb"; ctx.lineWidth = 2;
       for (let i = 1; i < 3; i++) {
-        const x = 5 + i * (canvas.width - 10) / 3;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
+        const x = 5 + i * ((canvas.width - 10) / 3);
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
       }
       ctx.setLineDash([]);
     }
@@ -167,22 +175,15 @@
 
     function drawItems() {
       items.forEach(item => {
-        if (item.type === 'icon') {
-          ctx.fillStyle = '#444';
-          ctx.fillRect(item.x + 5, item.y + 5, 50, 50);
+        if (item.type === "icon") {
           ctx.drawImage(iconImages[item.iconType], item.x + 5, item.y + 5, 50, 50);
         } else {
-          ctx.fillStyle = item.type === 'point' ? '#228B22' : '#8B0000';
-          ctx.fillRect(item.x + 5, item.y + 5, 50, 50);
-          ctx.strokeStyle = '#fff';
+          ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center";
+          ctx.fillStyle = item.type === "point" ? "#2ecc71" : "#e74c3c";
+          const lines = item.word.split("\n");
+          lines.forEach((line, i) => ctx.fillText(line, item.x + 30, item.y + 20 + i * 15));
+          ctx.strokeStyle = ctx.fillStyle;
           ctx.strokeRect(item.x + 5, item.y + 5, 50, 50);
-          ctx.fillStyle = '#fff';
-          ctx.font = 'bold 12px sans-serif';
-          ctx.textAlign = 'center';
-          const lines = item.word.split('\n');
-          lines.forEach((line, i) => {
-            ctx.fillText(line, item.x + 30, item.y + 20 + i * 15);
-          });
         }
       });
     }
@@ -190,36 +191,27 @@
     function moveItems() {
       items.forEach(item => {
         item.y += speed;
-        if (magnetActive && item.type === 'point') {
+        if (magnetActive && item.type === "point") {
           item.x += (lanes[player.lane] - item.x) * 0.1;
           item.y += (player.y - item.y) * 0.05;
         }
       });
-      if (Date.now() - lastSpeedIncrease >= 10000) {
-        speed *= 1.25;
-        lastSpeedIncrease = Date.now();
-      }
     }
 
     function checkCollisions() {
       for (let i = items.length - 1; i >= 0; i--) {
         const item = items[i];
-        const inLane = item.lane === player.lane;
-        const hit = item.y < player.y + player.height && item.y + 60 > player.y;
-        if (inLane && hit) {
-          if (item.type === 'word') {
-            lives--; soundWord.play();
+        if (item.lane === player.lane && item.y + 60 > player.y && item.y < player.y + player.height) {
+          if (item.type === "word") {
+            lives--; sfx.hit.play();
             if (lives <= 0) return endGame();
-          } else if (item.type === 'point') {
-            score += 5; soundPoint.play();
-          } else if (item.type === 'icon') {
-            soundIcon.play();
-            if (item.iconType === 'group') lives++;
-            if (item.iconType === 'safety') {
-              magnetActive = true;
-              magnetTimer = 300;
-            }
-            if (item.iconType === 'sustainability') timeLeft += 5;
+          } else if (item.type === "point") {
+            score += 5; sfx.collect.play();
+          } else if (item.type === "icon") {
+            sfx.powerup.play();
+            if (item.iconType === "group") lives++;
+            else if (item.iconType === "safety") { magnetActive = true; magnetTimer = 300; }
+            else if (item.iconType === "sustainability") timeLeft += 5;
           }
           laneElementCount[item.lane]--;
           items.splice(i, 1);
@@ -227,88 +219,93 @@
       }
     }
 
-    function spawnItem(lane) {
+    function spawnItems() {
+      const lane = Math.floor(Math.random() * 3);
       if (laneElementCount[lane] >= 6) return;
-      const typeRand = Math.random();
-      let type = typeRand < 0.5 ? 'word' : typeRand < 0.8 ? 'point' : 'icon';
+      const lastItem = items.findLast(i => i.lane === lane);
+      if (lastItem && lastItem.y > -120) return;
       laneElementCount[lane]++;
-      if (type === 'icon') {
-        const iconType = icons[Math.floor(Math.random() * icons.length)];
-        items.push({ type, lane, x: lanes[lane], y: -70, iconType });
+      const type = Math.random() < 0.5 ? "word" : Math.random() < 0.8 ? "point" : "icon";
+
+      if (type === "icon") {
+        const iconType = icons[Math.floor(Math.random() * icons.length)].type;
+        items.push({ type, lane, x: lanes[lane], y: -60, iconType });
       } else {
-        const word = type === 'point'
+        const word = type === "point"
           ? pointWords[Math.floor(Math.random() * pointWords.length)]
           : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
-        items.push({ type, lane, x: lanes[lane], y: -70, word });
+        items.push({ type, lane, x: lanes[lane], y: -60, word });
       }
     }
 
-    function ensureItemsPerLane() {
-      for (let i = 0; i < 3; i++) {
-        const count = items.filter(item => item.lane === i).length;
-        if (count < 4) spawnItem(i);
-      }
+    function enforceLaneMinimums() {
+      laneElementCount.forEach((count, i) => {
+        while (count < 4) {
+          const word = pointWords[Math.floor(Math.random() * pointWords.length)];
+          items.push({ type: "point", lane: i, x: lanes[i], y: -70, word });
+          laneElementCount[i]++;
+        }
+      });
     }
 
-    function spawnLoop() {
-      if (!gameRunning) return;
-      ensureItemsPerLane();
-      for (let i = 0; i < 3; i++) if (Math.random() < 0.4) spawnItem(i);
-      setTimeout(spawnLoop, 330);
-    }
-
-    function gameLoop() {
+    function gameLoop(timestamp) {
       if (!gameRunning) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawRoad(); drawPlayer(); drawItems(); moveItems(); checkCollisions();
-      if (magnetActive && --magnetTimer <= 0) magnetActive = false;
+      drawRoad(); drawPlayer(); drawItems();
+      moveItems(); checkCollisions();
       updateInfo();
+
+      if (magnetActive && --magnetTimer <= 0) magnetActive = false;
+
+      const now = Date.now();
+      if (now - lastSpawn > 1000) {
+        spawnItems();
+        lastSpawn = now;
+      }
+
       requestAnimationFrame(gameLoop);
     }
 
     function startGame() {
       resetGameState();
       gameRunning = true;
-      bgMusic.play();
-      spawnLoop();
+      bgm.play(); setVolumes();
+      enforceLaneMinimums();
       gameLoop();
-      const timer = setInterval(() => {
-        if (!gameRunning) return clearInterval(timer);
+      const t = setInterval(() => {
+        if (!gameRunning) return clearInterval(t);
         timeLeft--;
         if (timeLeft <= 0) {
-          clearInterval(timer);
+          clearInterval(t);
           endGame();
         }
         updateInfo();
       }, 1000);
     }
 
-    function resetGameState() {
-      score = 0; lives = 3; timeLeft = 20; speed = 1.3; items.length = 0;
-      laneElementCount.fill(0); updateInfo();
-    }
-
     function endGame() {
       gameRunning = false;
-      document.getElementById('finalScore').innerText = `Score: ${score}`;
-      document.getElementById('popup').style.display = 'flex';
-      bgMusic.pause();
+      bgm.pause(); bgm.currentTime = 0;
+      document.getElementById("finalScore").innerText = `Score: ${score}`;
+      document.getElementById("popup").style.display = "flex";
     }
 
     function closePopup() {
-      document.getElementById('popup').style.display = 'none';
+      document.getElementById("popup").style.display = "none";
     }
 
-    document.getElementById('startBtn').addEventListener('click', startGame);
-    document.getElementById('resetBtn').addEventListener('click', () => location.reload());
-    document.getElementById('leftBtn').addEventListener('click', () => { if (player.lane > 0) player.lane--; });
-    document.getElementById('rightBtn').addEventListener('click', () => { if (player.lane < 2) player.lane++; });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
-      if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
+    // Controls
+    document.getElementById("startBtn").onclick = startGame;
+    document.getElementById("resetBtn").onclick = () => location.reload();
+    document.getElementById("leftBtn").onclick = () => { if (player.lane > 0) player.lane--; };
+    document.getElementById("rightBtn").onclick = () => { if (player.lane < 2) player.lane++; };
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" && player.lane > 0) player.lane--;
+      if (e.key === "ArrowRight" && player.lane < 2) player.lane++;
     });
-    canvas.addEventListener('touchstart', e => {
-      const x = e.touches[0].clientX, mid = window.innerWidth / 2;
+    canvas.addEventListener("touchstart", e => {
+      const mid = window.innerWidth / 2;
+      const x = e.touches[0].clientX;
       if (x < mid && player.lane > 0) player.lane--;
       else if (x >= mid && player.lane < 2) player.lane++;
     });
