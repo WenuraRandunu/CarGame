@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Car Game with Sound & Volume Controls</title>
+  <title>Car Game</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -17,22 +17,16 @@
       height: 100vh;
       overflow: hidden;
     }
-    #controls, #volumeControls {
+    #controls, #infoBar {
       display: flex;
       justify-content: center;
       gap: 10px;
       margin: 5px;
+      font-size: 14px;
     }
-    button, input[type=range] {
+    button {
       padding: 5px;
       font-size: 12px;
-    }
-    #infoBar {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      max-width: 400px;
-      font-size: 14px;
     }
     #gameCanvas {
       width: 95vw;
@@ -75,8 +69,8 @@
 </head>
 <body>
   <div id="controls">
-    <button id="startBtn">Start Game</button>
-    <button id="resetBtn">Reset Game</button>
+    <button id="startBtn">Start</button>
+    <button id="resetBtn">Reset</button>
   </div>
   <div id="infoBar">
     <div id="lives">Lives: 3</div>
@@ -87,10 +81,6 @@
   <div id="touchButtons">
     <button class="touch-btn" id="leftBtn">⬅️</button>
     <button class="touch-btn" id="rightBtn">➡️</button>
-  </div>
-  <div id="volumeControls">
-    BGM <input type="range" id="bgVolume" min="0" max="1" step="0.01" value="0.5">
-    SFX <input type="range" id="sfxVolume" min="0" max="1" step="0.01" value="0.7">
   </div>
   <div id="popup">
     <div id="popupContent">
@@ -127,19 +117,11 @@
     // Audio
     const bgm = new Audio(`${githubBase}/bg-music.mp3`);
     bgm.loop = true;
-    const sfx = {
-      collect: new Audio(`${githubBase}/collect.mp3`),
-      hit: new Audio(`${githubBase}/hit.mp3`),
-      powerup: new Audio(`${githubBase}/powerup.mp3`)
-    };
-
-    function setVolumes() {
-      bgm.volume = document.getElementById("bgVolume").value;
-      Object.values(sfx).forEach(a => a.volume = document.getElementById("sfxVolume").value);
-    }
-
-    document.getElementById("bgVolume").oninput = setVolumes;
-    document.getElementById("sfxVolume").oninput = setVolumes;
+    // const sfx = {
+    //   collect: new Audio(`${githubBase}/collect.mp3`),
+    //   hit: new Audio(`${githubBase}/hit.mp3`),
+    //   powerup: new Audio(`${githubBase}/powerup.mp3`)
+    // };
 
     function resetGameState() {
       score = 0; lives = 3; timeLeft = 20;
@@ -219,14 +201,11 @@
       }
     }
 
-    function spawnItems() {
+    function spawnItem() {
       const lane = Math.floor(Math.random() * 3);
       if (laneElementCount[lane] >= 6) return;
-      const lastItem = items.findLast(i => i.lane === lane);
-      if (lastItem && lastItem.y > -120) return;
-      laneElementCount[lane]++;
       const type = Math.random() < 0.5 ? "word" : Math.random() < 0.8 ? "point" : "icon";
-
+      laneElementCount[lane]++;
       if (type === "icon") {
         const iconType = icons[Math.floor(Math.random() * icons.length)].type;
         items.push({ type, lane, x: lanes[lane], y: -60, iconType });
@@ -248,20 +227,13 @@
       });
     }
 
-    function gameLoop(timestamp) {
+    function gameLoop() {
       if (!gameRunning) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawRoad(); drawPlayer(); drawItems();
-      moveItems(); checkCollisions();
-      updateInfo();
+      moveItems(); checkCollisions(); updateInfo();
 
       if (magnetActive && --magnetTimer <= 0) magnetActive = false;
-
-      const now = Date.now();
-      if (now - lastSpawn > 1000) {
-        spawnItems();
-        lastSpawn = now;
-      }
 
       requestAnimationFrame(gameLoop);
     }
@@ -269,9 +241,15 @@
     function startGame() {
       resetGameState();
       gameRunning = true;
-      bgm.play(); setVolumes();
+      bgm.play();
       enforceLaneMinimums();
       gameLoop();
+
+      setInterval(() => {
+        if (!gameRunning) return;
+        spawnItem();
+      }, 1000);
+
       const t = setInterval(() => {
         if (!gameRunning) return clearInterval(t);
         timeLeft--;
@@ -294,7 +272,6 @@
       document.getElementById("popup").style.display = "none";
     }
 
-    // Controls
     document.getElementById("startBtn").onclick = startGame;
     document.getElementById("resetBtn").onclick = () => location.reload();
     document.getElementById("leftBtn").onclick = () => { if (player.lane > 0) player.lane--; };
