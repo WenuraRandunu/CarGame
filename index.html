@@ -320,7 +320,7 @@ function startGame() {
 
  // Change the spawn time from here
   if (spawnInterval) clearInterval(spawnInterval);
-  spawnInterval = setInterval(spawnItems, 100);
+  spawnInterval = setInterval(spawnItems, 50);
 
   const timerInterval = setInterval(() => {
     if (!gameRunning) return clearInterval(timerInterval);
