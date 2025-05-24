@@ -115,7 +115,6 @@
     let timeLeft = 20;
     let gameRunning = false;
     const lanes = [35, 135, 235];
-    const laneElementCount = [0, 0, 0];
     const player = { lane: 1, y: 440, width: 55, height: 66 };
 
     const githubBase = 'https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets';
@@ -155,7 +154,6 @@
       speed = 1.5;
       lastSpeedIncrease = Date.now();
       items.length = 0;
-      laneElementCount.fill(0);
       updateInfo();
     }
 
@@ -228,7 +226,6 @@
 
           if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
             score += 5;
-            laneElementCount[item.lane]--;
             items.splice(index, 1);
           }
         }
@@ -259,14 +256,15 @@
             }
             if (item.iconType === 'sustainability') timeLeft += 5;
           }
-          laneElementCount[item.lane]--;
           items.splice(i, 1);
         }
       }
     }
 
     function spawnItems() {
-      for (let i = 0; i < 3; i++) {
+      // Spawn more frequently (each call creates 2-4 items randomly)
+      const spawnCount = Math.floor(Math.random() * 3) + 2; // 2 to 4 items
+      for (let s = 0; s < spawnCount; s++) {
         const rand = Math.random();
         let type;
         if (rand < 0.4) type = 'word';
@@ -274,22 +272,25 @@
         else type = 'icon';
 
         const lane = Math.floor(Math.random() * 3);
-        if (laneElementCount[lane] >= 6) continue;
-        const lastItem = items.findLast(item => item.lane === lane);
-        if (lastItem && lastItem.y > -140) continue;
-
-        laneElementCount[lane]++;
 
         if (type === 'icon') {
           const icon = icons[Math.floor(Math.random() * icons.length)].type;
-          items.push({ type, lane, x: lanes[lane], y: -70, iconType: icon });
+          items.push({ type, lane, x: lanes[lane], y: -70 - (s * 20), iconType: icon });
         } else {
           const word = type === 'point'
             ? pointWords[Math.floor(Math.random() * pointWords.length)]
             : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
-          items.push({ type, lane, x: lanes[lane], y: -70, word });
+          items.push({ type, lane, x: lanes[lane], y: -70 - (s * 20), word });
         }
       }
+    }
+
+    let spawnInterval;
+    function startSpawnLoop() {
+      spawnInterval = setInterval(spawnItems, 300); // spawn every 300 ms
+    }
+    function stopSpawnLoop() {
+      clearInterval(spawnInterval);
     }
 
     function gameLoop() {
@@ -300,7 +301,6 @@
       drawItems();
       moveItems();
       checkCollisions();
-      spawnItems();
 
       if (magnetActive) {
         magnetTimer--;
@@ -314,12 +314,18 @@
     function startGame() {
       resetGameState();
       gameRunning = true;
+      startSpawnLoop();
       gameLoop();
       const timerInterval = setInterval(() => {
-        if (!gameRunning) return clearInterval(timerInterval);
+        if (!gameRunning) {
+          clearInterval(timerInterval);
+          stopSpawnLoop();
+          return;
+        }
         timeLeft--;
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
+          stopSpawnLoop();
           endGame();
         }
         updateInfo();
@@ -328,6 +334,7 @@
 
     function endGame() {
       gameRunning = false;
+      stopSpawnLoop();
       document.getElementById('finalScore').innerText = `Score: ${score}`;
       document.getElementById('popup').style.display = 'flex';
     }
