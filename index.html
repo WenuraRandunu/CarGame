@@ -123,13 +123,13 @@
     <div id="popupContent">
       <h2>Game Over!</h2>
       <p id="finalScore">Score: 0</p>
-      <button onclick="closePopup()">Play Again</button>
+      <button onclick="closePopupAndRestart()">Play Again</button>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCJv6vYn1Ca6CVlnT8uOFoYwah50kOTkCw",
@@ -241,7 +241,6 @@
           item.y += (player.y - item.y) * 0.05;
         }
       });
-      items.filter(item => item.y < canvas.height + 70);
 
       if (Date.now() - lastSpeedIncrease >= 5000) {
         speed *= 1.2;
@@ -325,8 +324,7 @@
       document.getElementById("finalScore").innerText = `Score: ${score}`;
       document.getElementById("popup").style.display = "flex";
 
-      const docRef = doc(db, "CarGameScore", `${userData.employeeNumber}`);
-      await setDoc(docRef, {
+      await addDoc(collection(db, "CarGameScore"), {
         Name: userData.name,
         EmployeeNumber: userData.employeeNumber,
         Department: userData.department,
@@ -334,25 +332,12 @@
       });
     }
 
-    function closePopup() {
+    function closePopupAndRestart() {
       document.getElementById("popup").style.display = "none";
-      resetGameState();
-      gameRunning = true;
-      gameLoop();
-      spawnInterval = setInterval(spawnItems, 200);
-      const timerInterval = setInterval(() => {
-        if (!gameRunning) return clearInterval(timerInterval);
-        timeLeft--;
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          clearInterval(spawnInterval);
-          endGame();
-        }
-        updateInfo();
-      }, 1000);
+      startGame();
     }
 
-    window.submitUserInfo = () => {
+    function submitUserInfo() {
       userData.name = document.getElementById("name").value;
       userData.employeeNumber = document.getElementById("empNo").value;
       userData.department = document.getElementById("dept").value;
@@ -362,7 +347,9 @@
       document.getElementById("infoBar").style.display = "flex";
       document.getElementById("touchButtons").style.display = "flex";
       document.getElementById("gameCanvas").style.display = "block";
-    };
+
+      startGame();
+    }
 
     document.getElementById("startBtn").addEventListener("click", startGame);
     document.getElementById("resetBtn").addEventListener("click", () => location.reload());
