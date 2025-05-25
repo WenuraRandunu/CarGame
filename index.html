@@ -18,9 +18,7 @@
       flex-direction: column;
       overflow: hidden;
     }
-    #controls, #infoBar, #touchButtons, #gameCanvas {
-      display: none;
-    }
+    #controls, #infoBar, #touchButtons, #gameCanvas { display: none; }
     button {
       padding: 5px 10px;
       margin: 3px;
@@ -128,19 +126,16 @@
     </div>
   </div>
 
-  <!-- Background music -->
-  <audio id="bgMusic" loop>
+  <!-- Audio elements -->
+  <audio id="bgMusic" loop autoplay>
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/bg.mp3" type="audio/mpeg">
   </audio>
-
-  <!-- Sound effects -->
   <audio id="blockSound">
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/block.mp3" type="audio/mpeg">
   </audio>
   <audio id="asdSound">
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
- 
 
   <script>
     const canvas = document.getElementById("gameCanvas");
@@ -327,6 +322,23 @@
       clearInterval(spawnInterval);
       document.getElementById("finalScore").innerText = `Score: ${score}`;
       document.getElementById("popup").style.display = "flex";
+
+      // Submit to Google Apps Script
+      if (userSubmitted) {
+        const payload = {
+          name: userData.name,
+          employeeNumber: userData.employeeNumber,
+          department: userData.department,
+          score: score
+        };
+        fetch("https://script.google.com/macros/s/AKfycbzt-L7o1H9JvH8Z0A_2qkJxQ94kbBoGMS_3_C54UeHzfnGsIY_Hbz0dQ2jOT4WVC7SUkQ/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).then(() => console.log("Score submitted"))
+          .catch(err => console.error("Error submitting score", err));
+      }
     }
 
     function closePopup() {
@@ -338,7 +350,7 @@
       gameRunning = false;
       clearInterval(spawnInterval);
       document.getElementById("bgMusic").pause();
-      window.close(); // Only works if opened by JS
+      window.close(); // Will only work for windows opened via JavaScript
     }
 
     function submitUserInfo() {
