@@ -18,8 +18,8 @@
       flex-direction: column;
       overflow: hidden;
     }
-    #controls, #infoBar, #touchButtons, #gameCanvas {
-      display: none;
+    #controls {
+      margin-bottom: 5px;
     }
     button {
       padding: 5px 10px;
@@ -83,28 +83,9 @@
       border-radius: 10px;
       text-align: center;
     }
-    #userForm {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    #userForm input {
-      padding: 8px;
-      font-size: 14px;
-      width: 200px;
-    }
   </style>
 </head>
 <body>
-  <div id="userForm">
-    <input type="text" id="name" placeholder="Name" required />
-    <input type="text" id="empNo" placeholder="Employee Number" required />
-    <input type="text" id="dept" placeholder="Department" required />
-    <button onclick="submitUserInfo()">Play Game</button>
-  </div>
-
   <div id="controls">
     <button id="startBtn">Start Game</button>
     <button id="resetBtn">Reset Game</button>
@@ -131,16 +112,16 @@
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
     const githubBase = "https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets";
+
     const player = { lane: 1, y: 440, width: 55, height: 66 };
     let score = 0, lives = 3, timeLeft = 20;
     let gameRunning = false, magnetActive = false, magnetTimer = 0;
     let speed = 1.5, lastSpeedIncrease = Date.now();
     const items = [];
-    let spawnInterval;
-    let userData = {};
 
     const carImage = new Image();
     carImage.src = `${githubBase}/car.png`;
+
     const icons = [
       { type: "group", img: `${githubBase}/group.png` },
       { type: "safety", img: `${githubBase}/safety.png` },
@@ -154,7 +135,11 @@
     });
 
     const pointWords = ["DDS", "Centerlines", "Defect\nHandling", "IPS", "UPS", "Kaizen", "5S"];
-    const wordBlocks = ["Absenteeism", "Reject", "Rework", "Breakdown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
+    const wordBlocks = [
+      "Absenteeism", "Reject", "Rework", "Breakdown", "Powercut",
+      "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps",
+      "Size\nchanges", "Style\nchanges"
+    ];
 
     function updateInfo() {
       document.getElementById("score").innerText = `Score: ${score}`;
@@ -216,15 +201,20 @@
     }
 
     function moveItems() {
-      items.forEach(item => {
-        item.y += speed;
-        if (magnetActive && item.type === "point") {
-          const targetX = lanes[player.lane];
-          item.x += (targetX - item.x) * 0.1;
-          item.y += (player.y - item.y) * 0.05;
-        }
-      });
-      items.filter(item => item.y < canvas.height + 70);
+      for (let i = items.length - 1; i >= 0; i--) {
+        items[i].y += speed;
+        if (items[i].y > canvas.height + 100) items.splice(i, 1);
+      }
+
+      if (magnetActive) {
+        items.forEach(item => {
+          if (item.type === "point") {
+            const targetX = lanes[player.lane];
+            item.x += (targetX - item.x) * 0.1;
+            item.y += (player.y - item.y) * 0.05;
+          }
+        });
+      }
 
       if (Date.now() - lastSpeedIncrease >= 5000) {
         speed *= 1.2;
@@ -260,14 +250,18 @@
       const lane = Math.floor(Math.random() * 3);
       const laneX = lanes[lane];
       const lastItem = [...items].reverse().find(i => i.x === laneX);
-      if (lastItem && lastItem.y < 130) return;
+      if (lastItem && lastItem.y < 140) return;
+
       const rand = Math.random();
       const type = rand < 0.4 ? "word" : rand < 0.75 ? "point" : "icon";
+
       if (type === "icon") {
         const icon = icons[Math.floor(Math.random() * icons.length)].type;
         items.push({ type, x: laneX, y: -70, iconType: icon });
       } else {
-        const word = type === "point" ? pointWords[Math.floor(Math.random() * pointWords.length)] : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
+        const word = type === "point"
+          ? pointWords[Math.floor(Math.random() * pointWords.length)]
+          : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
         items.push({ type, x: laneX, y: -70, word });
       }
     }
@@ -284,12 +278,13 @@
       requestAnimationFrame(gameLoop);
     }
 
+    let spawnInterval;
     function startGame() {
       resetGameState();
       gameRunning = true;
       gameLoop();
       if (spawnInterval) clearInterval(spawnInterval);
-      spawnInterval = setInterval(spawnItems, 200); // 333ms * 0.8 * 0.75 = ~200ms
+      spawnInterval = setInterval(spawnItems, 250);
       const timerInterval = setInterval(() => {
         if (!gameRunning) return clearInterval(timerInterval);
         timeLeft--;
@@ -307,33 +302,10 @@
       clearInterval(spawnInterval);
       document.getElementById("finalScore").innerText = `Score: ${score}`;
       document.getElementById("popup").style.display = "flex";
-
-      fetch("https://script.google.com/macros/s/AKfycbyvk2E4KkBVTJjhee1mZbJdCqajp9vqDkrVlt8l2TCHAdbeDrEMtjlaQiN_sEe1C4curw/exec", {
-        method: "POST",
-        body: JSON.stringify({
-          name: userData.name,
-          employeeNumber: userData.employeeNumber,
-          department: userData.department,
-          score: score
-        }),
-        headers: { "Content-Type": "application/json" }
-      });
     }
 
     function closePopup() {
       document.getElementById("popup").style.display = "none";
-    }
-
-    function submitUserInfo() {
-      userData.name = document.getElementById("name").value;
-      userData.employeeNumber = document.getElementById("empNo").value;
-      userData.department = document.getElementById("dept").value;
-
-      document.getElementById("userForm").style.display = "none";
-      document.getElementById("controls").style.display = "block";
-      document.getElementById("infoBar").style.display = "flex";
-      document.getElementById("touchButtons").style.display = "flex";
-      document.getElementById("gameCanvas").style.display = "block";
     }
 
     document.getElementById("startBtn").addEventListener("click", startGame);
