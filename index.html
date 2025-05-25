@@ -300,7 +300,9 @@
     }
 
     function startGame() {
-      document.getElementById("bgMusic").play();
+      const bgMusic = document.getElementById("bgMusic");
+      bgMusic.currentTime = 0;
+      bgMusic.play();
       resetGameState();
       gameRunning = true;
       gameLoop();
@@ -319,6 +321,9 @@
     }
 
     function endGame() {
+      const bgMusic = document.getElementById("bgMusic");
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
       gameRunning = false;
       clearInterval(spawnInterval);
       document.getElementById("finalScore").innerText = `Score: ${score}`;
