@@ -133,15 +133,14 @@
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/bg.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Sound effects (currently commented) -->
-  <!--
+  <!-- Sound effects -->
   <audio id="blockSound">
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/block.mp3" type="audio/mpeg">
   </audio>
   <audio id="asdSound">
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
-  -->
+ 
 
   <script>
     const canvas = document.getElementById("gameCanvas");
@@ -257,13 +256,13 @@
         if (inLane && hit) {
           if (item.type === "word") {
             lives--;
-            // document.getElementById("blockSound").play();
+            document.getElementById("blockSound").play();
             if (lives <= 0) return endGame();
           } else if (item.type === "point") {
             score += 5;
-            // document.getElementById("asdSound").play();
+            document.getElementById("asdSound").play();
           } else if (item.type === "icon") {
-            // document.getElementById("asdSound").play();
+            document.getElementById("asdSound").play();
             if (item.iconType === "group") lives++;
             if (item.iconType === "safety") {
               magnetActive = true;
