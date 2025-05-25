@@ -98,6 +98,7 @@
   </style>
 </head>
 <body>
+
   <div id="userForm">
     <input type="text" id="name" placeholder="Name" required />
     <input type="text" id="empNo" placeholder="Employee Number" required />
@@ -107,7 +108,7 @@
 
   <div id="controls">
     <button id="startBtn">Start Game</button>
-    <button id="closeGameBtn">Close Game</button>
+    <button onclick="closeGame()">Close Game</button>
   </div>
   <div id="infoBar">
     <div id="lives">Lives: 3</div>
@@ -127,11 +128,20 @@
     </div>
   </div>
 
-  <!-- Background Music -->
+  <!-- Background music -->
   <audio id="bgMusic" loop>
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/bg.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
   </audio>
+
+  <!-- Sound effects (currently commented) -->
+  <!--
+  <audio id="blockSound">
+    <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/block.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="asdSound">
+    <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
+  </audio>
+  -->
 
   <script>
     const canvas = document.getElementById("gameCanvas");
@@ -145,6 +155,7 @@
     const items = [];
     let spawnInterval;
     let userData = {};
+    let userSubmitted = false;
 
     const carImage = new Image();
     carImage.src = `${githubBase}/car.png`;
@@ -231,7 +242,7 @@
           item.y += (player.y - item.y) * 0.05;
         }
       });
-      items.filter(item => item.y < canvas.height + 70);
+
       if (Date.now() - lastSpeedIncrease >= 5000) {
         speed *= 1.2;
         lastSpeedIncrease = Date.now();
@@ -246,10 +257,13 @@
         if (inLane && hit) {
           if (item.type === "word") {
             lives--;
+            // document.getElementById("blockSound").play();
             if (lives <= 0) return endGame();
           } else if (item.type === "point") {
             score += 5;
+            // document.getElementById("asdSound").play();
           } else if (item.type === "icon") {
+            // document.getElementById("asdSound").play();
             if (item.iconType === "group") lives++;
             if (item.iconType === "safety") {
               magnetActive = true;
@@ -291,8 +305,8 @@
     }
 
     function startGame() {
+      document.getElementById("bgMusic").play();
       resetGameState();
-      document.getElementById("bgMusic").play().catch(() => {});
       gameRunning = true;
       gameLoop();
       if (spawnInterval) clearInterval(spawnInterval);
@@ -312,15 +326,12 @@
     function endGame() {
       gameRunning = false;
       clearInterval(spawnInterval);
-      document.getElementById("bgMusic").pause();
       document.getElementById("finalScore").innerText = `Score: ${score}`;
       document.getElementById("popup").style.display = "flex";
     }
 
     function closePopup() {
       document.getElementById("popup").style.display = "none";
-      document.getElementById("bgMusic").currentTime = 0;
-      document.getElementById("bgMusic").play();
       startGame();
     }
 
@@ -328,16 +339,14 @@
       gameRunning = false;
       clearInterval(spawnInterval);
       document.getElementById("bgMusic").pause();
-      document.getElementById("controls").style.display = "none";
-      document.getElementById("infoBar").style.display = "none";
-      document.getElementById("touchButtons").style.display = "none";
-      document.getElementById("gameCanvas").style.display = "none";
+      window.close(); // Only works if opened by JS
     }
 
     function submitUserInfo() {
       userData.name = document.getElementById("name").value;
       userData.employeeNumber = document.getElementById("empNo").value;
       userData.department = document.getElementById("dept").value;
+      userSubmitted = true;
       document.getElementById("userForm").style.display = "none";
       document.getElementById("controls").style.display = "block";
       document.getElementById("infoBar").style.display = "flex";
@@ -346,7 +355,6 @@
     }
 
     document.getElementById("startBtn").addEventListener("click", startGame);
-    document.getElementById("closeGameBtn").addEventListener("click", closeGame);
     document.getElementById("leftBtn").addEventListener("click", () => { if (player.lane > 0) player.lane--; });
     document.getElementById("rightBtn").addEventListener("click", () => { if (player.lane < 2) player.lane++; });
     document.addEventListener("keydown", e => {
