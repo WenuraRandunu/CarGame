@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Responsive Car Game</title>
   <style>
     * { box-sizing: border-box; }
@@ -127,24 +127,29 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js"></script>
 
+  <script>
+    // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCJv6vYn1Ca6CVlnT8uOFoYwah50kOTkCw",
       authDomain: "car-game-62caf.firebaseapp.com",
       projectId: "car-game-62caf",
-      storageBucket: "car-game-62caf.firebasestorage.app",
+      storageBucket: "car-game-62caf.appspot.com",
       messagingSenderId: "355200563779",
       appId: "1:355200563779:web:781097cc0dd705b443f2f6",
-      measurementId: "G-2GYMD81CDN"
+      measurementId: "G-2GYMD81CDN",
+      databaseURL: "https://car-game-62caf-default-rtdb.firebaseio.com"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+  </script>
 
+  <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
@@ -234,142 +239,6 @@
     }
 
     function moveItems() {
-      items.forEach(item => {
-        item.y += speed;
-        if (magnetActive && item.type === "point") {
-          const targetX = lanes[player.lane];
-          item.x += (targetX - item.x) * 0.1;
-          item.y += (player.y - item.y) * 0.05;
-        }
-      });
-      items.filter(item => item.y < canvas.height + 70);
 
-      if (Date.now() - lastSpeedIncrease >= 5000) {
-        speed *= 1.2;
-        lastSpeedIncrease = Date.now();
-      }
-    }
-
-    function checkCollisions() {
-      for (let i = items.length - 1; i >= 0; i--) {
-        const item = items[i];
-        const inLane = Math.abs(item.x - lanes[player.lane]) < 10;
-        const hit = item.y < player.y + player.height && item.y + 60 > player.y;
-        if (inLane && hit) {
-          if (item.type === "word") {
-            lives--;
-            if (lives <= 0) return endGame();
-          } else if (item.type === "point") {
-            score += 5;
-          } else if (item.type === "icon") {
-            if (item.iconType === "group") lives++;
-            if (item.iconType === "safety") {
-              magnetActive = true;
-              magnetTimer = 300;
-            }
-            if (item.iconType === "sustainability") timeLeft += 5;
-          }
-          items.splice(i, 1);
-        }
-      }
-    }
-
-    function spawnItems() {
-      const lane = Math.floor(Math.random() * 3);
-      const laneX = lanes[lane];
-      const lastItem = [...items].reverse().find(i => i.x === laneX);
-      if (lastItem && lastItem.y < 130) return;
-      const rand = Math.random();
-      const type = rand < 0.4 ? "word" : rand < 0.75 ? "point" : "icon";
-      if (type === "icon") {
-        const icon = icons[Math.floor(Math.random() * icons.length)].type;
-        items.push({ type, x: laneX, y: -70, iconType: icon });
-      } else {
-        const word = type === "point" ? pointWords[Math.floor(Math.random() * pointWords.length)] : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
-        items.push({ type, x: laneX, y: -70, word });
-      }
-    }
-
-    function gameLoop() {
-      if (!gameRunning) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawRoad(); drawPlayer(); drawItems(); moveItems(); checkCollisions();
-      if (magnetActive) {
-        magnetTimer--;
-        if (magnetTimer <= 0) magnetActive = false;
-      }
-      updateInfo();
-      requestAnimationFrame(gameLoop);
-    }
-
-    async function endGame() {
-      gameRunning = false;
-      clearInterval(spawnInterval);
-      document.getElementById("finalScore").innerText = `Score: ${score}`;
-      document.getElementById("popup").style.display = "flex";
-
-      try {
-        await addDoc(collection(db, "game_scores"), {
-          name: userData.name,
-          employeeNumber: userData.employeeNumber,
-          department: userData.department,
-          score: score,
-          timestamp: serverTimestamp()
-        });
-        console.log("Score submitted to Firebase");
-      } catch (e) {
-        console.error("Error saving to Firestore:", e);
-      }
-    }
-
-    function closePopup() {
-      document.getElementById("popup").style.display = "none";
-    }
-
-    function submitUserInfo() {
-      userData.name = document.getElementById("name").value;
-      userData.employeeNumber = document.getElementById("empNo").value;
-      userData.department = document.getElementById("dept").value;
-
-      document.getElementById("userForm").style.display = "none";
-      document.getElementById("controls").style.display = "block";
-      document.getElementById("infoBar").style.display = "flex";
-      document.getElementById("touchButtons").style.display = "flex";
-      document.getElementById("gameCanvas").style.display = "block";
-    }
-
-    document.getElementById("startBtn").addEventListener("click", startGame);
-    document.getElementById("resetBtn").addEventListener("click", () => location.reload());
-    document.getElementById("leftBtn").addEventListener("click", () => { if (player.lane > 0) player.lane--; });
-    document.getElementById("rightBtn").addEventListener("click", () => { if (player.lane < 2) player.lane++; });
-    document.addEventListener("keydown", e => {
-      if (e.key === "ArrowLeft" && player.lane > 0) player.lane--;
-      if (e.key === "ArrowRight" && player.lane < 2) player.lane++;
-    });
-    canvas.addEventListener("touchstart", e => {
-      const touchX = e.touches[0].clientX;
-      const mid = window.innerWidth / 2;
-      if (touchX < mid && player.lane > 0) player.lane--;
-      else if (touchX >= mid && player.lane < 2) player.lane++;
-    });
-
-    function startGame() {
-      resetGameState();
-      gameRunning = true;
-      gameLoop();
-      if (spawnInterval) clearInterval(spawnInterval);
-      spawnInterval = setInterval(spawnItems, 200);
-      const timerInterval = setInterval(() => {
-        if (!gameRunning) return clearInterval(timerInterval);
-        timeLeft--;
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          clearInterval(spawnInterval);
-          endGame();
-        }
-        updateInfo();
-      }, 1000);
-    }
-  </script>
-</body>
-</html>
+::contentReference[oaicite:20]{index=20}
+ 
