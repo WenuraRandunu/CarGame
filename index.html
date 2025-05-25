@@ -322,6 +322,21 @@
 
     function closePopup() {
       document.getElementById("popup").style.display = "none";
+      resetGameState();
+      gameRunning = true;
+      gameLoop();
+      if (spawnInterval) clearInterval(spawnInterval);
+      spawnInterval = setInterval(spawnItems, 200);
+      const timerInterval = setInterval(() => {
+        if (!gameRunning) return clearInterval(timerInterval);
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          clearInterval(spawnInterval);
+          endGame();
+        }
+        updateInfo();
+      }, 1000);
     }
 
     function submitUserInfo() {
