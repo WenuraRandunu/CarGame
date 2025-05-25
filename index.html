@@ -107,7 +107,7 @@
 
   <div id="controls">
     <button id="startBtn">Start Game</button>
-    <button id="resetBtn">Reset Game</button>
+    <button id="closeGameBtn">Close Game</button>
   </div>
   <div id="infoBar">
     <div id="lives">Lives: 3</div>
@@ -162,10 +162,15 @@
       document.getElementById("timer").innerText = `Time: ${timeLeft}s`;
     }
 
-    function resetGameState() {
-      score = 0; lives = 3; timeLeft = 20; speed = 1.5;
-      items.length = 0; updateInfo();
+    function closeGame() {
+      gameRunning = false;
+      clearInterval(spawnInterval);
+      document.getElementById("controls").style.display = "none";
+      document.getElementById("infoBar").style.display = "none";
+      document.getElementById("touchButtons").style.display = "none";
+      document.getElementById("gameCanvas").style.display = "none";
     }
+
 
     function drawRoad() {
       ctx.fillStyle = "#222";
@@ -338,7 +343,7 @@
     }
 
     document.getElementById("startBtn").addEventListener("click", startGame);
-    document.getElementById("resetBtn").addEventListener("click", () => location.reload());
+    document.getElementById("closeGameBtn").addEventListener("click", closeGame);
     document.getElementById("leftBtn").addEventListener("click", () => { if (player.lane > 0) player.lane--; });
     document.getElementById("rightBtn").addEventListener("click", () => { if (player.lane < 2) player.lane++; });
     document.addEventListener("keydown", e => {
