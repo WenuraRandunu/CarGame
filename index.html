@@ -126,7 +126,25 @@
       <button onclick="closePopup()">Close</button>
     </div>
   </div>
-  <script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJv6vYn1Ca6CVlnT8uOFoYwah50kOTkCw",
+      authDomain: "car-game-62caf.firebaseapp.com",
+      projectId: "car-game-62caf",
+      storageBucket: "car-game-62caf.firebasestorage.app",
+      messagingSenderId: "355200563779",
+      appId: "1:355200563779:web:781097cc0dd705b443f2f6",
+      measurementId: "G-2GYMD81CDN"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
@@ -284,40 +302,24 @@
       requestAnimationFrame(gameLoop);
     }
 
-    function startGame() {
-      resetGameState();
-      gameRunning = true;
-      gameLoop();
-      if (spawnInterval) clearInterval(spawnInterval);
-      spawnInterval = setInterval(spawnItems, 200); // 333ms * 0.8 * 0.75 = ~200ms
-      const timerInterval = setInterval(() => {
-        if (!gameRunning) return clearInterval(timerInterval);
-        timeLeft--;
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          clearInterval(spawnInterval);
-          endGame();
-        }
-        updateInfo();
-      }, 1000);
-    }
-
-    function endGame() {
+    async function endGame() {
       gameRunning = false;
       clearInterval(spawnInterval);
       document.getElementById("finalScore").innerText = `Score: ${score}`;
       document.getElementById("popup").style.display = "flex";
 
-      fetch("https://script.google.com/macros/s/AKfycbxEXOejwcyTow6d_sQoGuA_VTtetGARvGZBlTv_PPSnTLPofdfPgS6ZA8HdUir0e1H5uw/exec", {
-        method: "POST",
-        body: JSON.stringify({
+      try {
+        await addDoc(collection(db, "game_scores"), {
           name: userData.name,
           employeeNumber: userData.employeeNumber,
           department: userData.department,
-          score: score
-        }),
-        headers: { "Content-Type": "application/json" }
-      });
+          score: score,
+          timestamp: serverTimestamp()
+        });
+        console.log("Score submitted to Firebase");
+      } catch (e) {
+        console.error("Error saving to Firestore:", e);
+      }
     }
 
     function closePopup() {
@@ -350,6 +352,24 @@
       if (touchX < mid && player.lane > 0) player.lane--;
       else if (touchX >= mid && player.lane < 2) player.lane++;
     });
+
+    function startGame() {
+      resetGameState();
+      gameRunning = true;
+      gameLoop();
+      if (spawnInterval) clearInterval(spawnInterval);
+      spawnInterval = setInterval(spawnItems, 200);
+      const timerInterval = setInterval(() => {
+        if (!gameRunning) return clearInterval(timerInterval);
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          clearInterval(spawnInterval);
+          endGame();
+        }
+        updateInfo();
+      }, 1000);
+    }
   </script>
 </body>
 </html>
