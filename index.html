@@ -106,7 +106,6 @@
   </div>
 
   <div id="controls">
-    <button id="startBtn">Start Game</button>
     <button id="resetBtn">Reset Game</button>
   </div>
   <div id="infoBar">
@@ -127,12 +126,11 @@
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js"></script>
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-  <script>
-    // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyCJv6vYn1Ca6CVlnT8uOFoYwah50kOTkCw",
       authDomain: "car-game-62caf.firebaseapp.com",
@@ -140,16 +138,13 @@
       storageBucket: "car-game-62caf.appspot.com",
       messagingSenderId: "355200563779",
       appId: "1:355200563779:web:781097cc0dd705b443f2f6",
-      measurementId: "G-2GYMD81CDN",
-      databaseURL: "https://car-game-62caf-default-rtdb.firebaseio.com"
+      measurementId: "G-2GYMD81CDN"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-  </script>
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-  <script>
+    // Game logic
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
@@ -239,5 +234,149 @@
     }
 
     function moveItems() {
+      items.forEach(item => {
+        item.y += speed;
+        if (magnetActive && item.type === "point") {
+          const targetX = lanes[player.lane];
+          item.x += (targetX - item.x) * 0.1;
+          item.y += (player.y - item.y) * 0.05;
+        }
+      });
+      items.filter(item => item.y < canvas.height + 70);
 
-::contentReference[oaicite:20]{index=20}
+      if (Date.now() - lastSpeedIncrease >= 5000) {
+        speed *= 1.2;
+        lastSpeedIncrease = Date.now();
+      }
+    }
+
+    function checkCollisions() {
+      for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
+        const inLane = Math.abs(item.x - lanes[player.lane]) < 10;
+        const hit = item.y < player.y + player.height && item.y + 60 > player.y;
+        if (inLane && hit) {
+          if (item.type === "word") {
+            lives--;
+            if (lives <= 0) return endGame();
+          } else if (item.type === "point") {
+            score += 5;
+          } else if (item.type === "icon") {
+            if (item.iconType === "group") lives++;
+            if (item.iconType === "safety") {
+              magnetActive = true;
+              magnetTimer = 300;
+            }
+            if (item.iconType === "sustainability") timeLeft += 5;
+          }
+          items.splice(i, 1);
+        }
+      }
+    }
+
+    function spawnItems() {
+      const lane = Math.floor(Math.random() * 3);
+      const laneX = lanes[lane];
+      const lastItem = [...items].reverse().find(i => i.x === laneX);
+      if (lastItem && lastItem.y < 130) return;
+      const rand = Math.random();
+      const type = rand < 0.4 ? "word" : rand < 0.75 ? "point" : "icon";
+      if (type === "icon") {
+        const icon = icons[Math.floor(Math.random() * icons.length)].type;
+        items.push({ type, x: laneX, y: -70, iconType: icon });
+      } else {
+        const word = type === "point" ? pointWords[Math.floor(Math.random() * pointWords.length)] : wordBlocks[Math.floor(Math.random() * wordBlocks.length)];
+        items.push({ type, x: laneX, y: -70, word });
+      }
+    }
+
+    function gameLoop() {
+      if (!gameRunning) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawRoad(); drawPlayer(); drawItems(); moveItems(); checkCollisions();
+      if (magnetActive) {
+        magnetTimer--;
+        if (magnetTimer <= 0) magnetActive = false;
+      }
+      updateInfo();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function startGame() {
+      resetGameState();
+      gameRunning = true;
+      gameLoop();
+      if (spawnInterval) clearInterval(spawnInterval);
+      spawnInterval = setInterval(spawnItems, 200);
+      const timerInterval = setInterval(() => {
+        if (!gameRunning) return clearInterval(timerInterval);
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          clearInterval(spawnInterval);
+          endGame();
+        }
+        updateInfo();
+      }, 1000);
+    }
+
+    async function endGame() {
+      gameRunning = false;
+      clearInterval(spawnInterval);
+      document.getElementById("finalScore").innerText = `Score: ${score}`;
+      document.getElementById("popup").style.display = "flex";
+
+      // Store data in Firebase Firestore
+      try {
+        await addDoc(collection(db, "gameScores"), {
+          name: userData.name,
+          employeeNumber: userData.empNo,
+          department: userData.dept,
+          score: score,
+          timestamp: new Date()
+        });
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    }
+
+    function closePopup() {
+      document.getElementById("popup").style.display = "none";
+    }
+
+    window.submitUserInfo = function () {
+      const name = document.getElementById("name").value.trim();
+      const empNo = document.getElementById("empNo").value.trim();
+      const dept = document.getElementById("dept").value.trim();
+
+      if (!name || !empNo || !dept) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      userData = { name, empNo, dept };
+      document.getElementById("userForm").style.display = "none";
+      document.getElementById("controls").style.display = "flex";
+      document.getElementById("infoBar").style.display = "flex";
+      document.getElementById("gameCanvas").style.display = "block";
+      document.getElementById("touchButtons").style.display = "flex";
+
+      startGame();
+    };
+
+    document.getElementById("resetBtn").addEventListener("click", () => location.reload());
+    document.getElementById("leftBtn").addEventListener("click", () => { if (player.lane > 0) player.lane--; });
+    document.getElementById("rightBtn").addEventListener("click", () => { if (player.lane < 2) player.lane++; });
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" && player.lane > 0) player.lane--;
+      if (e.key === "ArrowRight" && player.lane < 2) player.lane++;
+    });
+    canvas.addEventListener("touchstart", e => {
+      const touchX = e.touches[0].clientX;
+      const mid = window.innerWidth / 2;
+      if (touchX < mid && player.lane > 0) player.lane--;
+      else if (touchX >= mid && player.lane < 2) player.lane++;
+    });
+  </script>
+</body>
+</html>
