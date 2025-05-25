@@ -102,10 +102,11 @@
     <input type="text" id="name" placeholder="Name" required />
     <input type="text" id="empNo" placeholder="Employee Number" required />
     <input type="text" id="dept" placeholder="Department" required />
-    <button onclick="submitUserInfo()">Play Game</button>
+    <button id="playBtn">Play Game</button>
   </div>
 
   <div id="controls">
+    <button id="startBtn">Start Game</button>
     <button id="resetBtn">Reset Game</button>
   </div>
   <div id="infoBar">
@@ -129,13 +130,13 @@
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCJv6vYn1Ca6CVlnT8uOFoYwah50kOTkCw",
       authDomain: "car-game-62caf.firebaseapp.com",
       projectId: "car-game-62caf",
-      storageBucket: "car-game-62caf.appspot.com",
+      storageBucket: "car-game-62caf.firebasestorage.app",
       messagingSenderId: "355200563779",
       appId: "1:355200563779:web:781097cc0dd705b443f2f6",
       measurementId: "G-2GYMD81CDN"
@@ -144,7 +145,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Game logic
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
@@ -243,7 +243,6 @@
         }
       });
       items.filter(item => item.y < canvas.height + 70);
-
       if (Date.now() - lastSpeedIncrease >= 5000) {
         speed *= 1.2;
         lastSpeedIncrease = Date.now();
@@ -326,17 +325,16 @@
       document.getElementById("finalScore").innerText = `Score: ${score}`;
       document.getElementById("popup").style.display = "flex";
 
-      // Store data in Firebase Firestore
       try {
-        await addDoc(collection(db, "gameScores"), {
-          name: userData.name,
-          employeeNumber: userData.empNo,
-          department: userData.dept,
-          score: score,
-          timestamp: new Date()
+        const docRef = doc(db, "CarGameScore", "CMZryfEIiAlRsnPt1ISY");
+        await setDoc(docRef, {
+          Name: userData.name,
+          EmployeeNumber: userData.employeeNumber,
+          Department: userData.department,
+          Score: score
         });
-      } catch (e) {
-        console.error("Error adding document: ", e);
+      } catch (error) {
+        console.error("Error writing to Firestore:", error);
       }
     }
 
@@ -344,26 +342,21 @@
       document.getElementById("popup").style.display = "none";
     }
 
-    window.submitUserInfo = function () {
-      const name = document.getElementById("name").value.trim();
-      const empNo = document.getElementById("empNo").value.trim();
-      const dept = document.getElementById("dept").value.trim();
+    function submitUserInfo() {
+      userData.name = document.getElementById("name").value.trim();
+      userData.employeeNumber = document.getElementById("empNo").value.trim();
+      userData.department = document.getElementById("dept").value.trim();
+      if (!userData.name || !userData.employeeNumber || !userData.department) return alert("Please fill all fields!");
 
-      if (!name || !empNo || !dept) {
-        alert("Please fill in all fields.");
-        return;
-      }
-
-      userData = { name, empNo, dept };
       document.getElementById("userForm").style.display = "none";
-      document.getElementById("controls").style.display = "flex";
+      document.getElementById("controls").style.display = "block";
       document.getElementById("infoBar").style.display = "flex";
-      document.getElementById("gameCanvas").style.display = "block";
       document.getElementById("touchButtons").style.display = "flex";
-
+      document.getElementById("gameCanvas").style.display = "block";
       startGame();
-    };
+    }
 
+    document.getElementById("playBtn").addEventListener("click", submitUserInfo);
     document.getElementById("resetBtn").addEventListener("click", () => location.reload());
     document.getElementById("leftBtn").addEventListener("click", () => { if (player.lane > 0) player.lane--; });
     document.getElementById("rightBtn").addEventListener("click", () => { if (player.lane < 2) player.lane++; });
