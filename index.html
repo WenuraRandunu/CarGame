@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Responsive Car Game</title>
   <style>
     * { box-sizing: border-box; }
@@ -102,7 +102,7 @@
     <input type="text" id="name" placeholder="Name" required />
     <input type="text" id="empNo" placeholder="Employee Number" required />
     <input type="text" id="dept" placeholder="Department" required />
-    <button id="playBtn">Play Game</button>
+    <button onclick="submitUserInfo()">Play Game</button>
   </div>
 
   <div id="controls">
@@ -123,11 +123,10 @@
     <div id="popupContent">
       <h2>Game Over!</h2>
       <p id="finalScore">Score: 0</p>
-      <button onclick="closePopup()">Close</button>
+      <button onclick="closePopup()">Play Again</button>
     </div>
   </div>
 
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
@@ -136,7 +135,7 @@
       apiKey: "AIzaSyCJv6vYn1Ca6CVlnT8uOFoYwah50kOTkCw",
       authDomain: "car-game-62caf.firebaseapp.com",
       projectId: "car-game-62caf",
-      storageBucket: "car-game-62caf.firebasestorage.app",
+      storageBucket: "car-game-62caf.appspot.com",
       messagingSenderId: "355200563779",
       appId: "1:355200563779:web:781097cc0dd705b443f2f6",
       measurementId: "G-2GYMD81CDN"
@@ -243,6 +242,7 @@
         }
       });
       items.filter(item => item.y < canvas.height + 70);
+
       if (Date.now() - lastSpeedIncrease >= 5000) {
         speed *= 1.2;
         lastSpeedIncrease = Date.now();
@@ -325,38 +325,46 @@
       document.getElementById("finalScore").innerText = `Score: ${score}`;
       document.getElementById("popup").style.display = "flex";
 
-      try {
-        const docRef = doc(db, "CarGameScore", "CMZryfEIiAlRsnPt1ISY");
-        await setDoc(docRef, {
-          Name: userData.name,
-          EmployeeNumber: userData.employeeNumber,
-          Department: userData.department,
-          Score: score
-        });
-      } catch (error) {
-        console.error("Error writing to Firestore:", error);
-      }
+      const docRef = doc(db, "CarGameScore", `${userData.employeeNumber}`);
+      await setDoc(docRef, {
+        Name: userData.name,
+        EmployeeNumber: userData.employeeNumber,
+        Department: userData.department,
+        Score: score
+      });
     }
 
     function closePopup() {
       document.getElementById("popup").style.display = "none";
+      resetGameState();
+      gameRunning = true;
+      gameLoop();
+      spawnInterval = setInterval(spawnItems, 200);
+      const timerInterval = setInterval(() => {
+        if (!gameRunning) return clearInterval(timerInterval);
+        timeLeft--;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          clearInterval(spawnInterval);
+          endGame();
+        }
+        updateInfo();
+      }, 1000);
     }
 
-    function submitUserInfo() {
-      userData.name = document.getElementById("name").value.trim();
-      userData.employeeNumber = document.getElementById("empNo").value.trim();
-      userData.department = document.getElementById("dept").value.trim();
-      if (!userData.name || !userData.employeeNumber || !userData.department) return alert("Please fill all fields!");
+    window.submitUserInfo = () => {
+      userData.name = document.getElementById("name").value;
+      userData.employeeNumber = document.getElementById("empNo").value;
+      userData.department = document.getElementById("dept").value;
 
       document.getElementById("userForm").style.display = "none";
       document.getElementById("controls").style.display = "block";
       document.getElementById("infoBar").style.display = "flex";
       document.getElementById("touchButtons").style.display = "flex";
       document.getElementById("gameCanvas").style.display = "block";
-      startGame();
-    }
+    };
 
-    document.getElementById("playBtn").addEventListener("click", submitUserInfo);
+    document.getElementById("startBtn").addEventListener("click", startGame);
     document.getElementById("resetBtn").addEventListener("click", () => location.reload());
     document.getElementById("leftBtn").addEventListener("click", () => { if (player.lane > 0) player.lane--; });
     document.getElementById("rightBtn").addEventListener("click", () => { if (player.lane < 2) player.lane++; });
