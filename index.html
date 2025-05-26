@@ -136,6 +136,10 @@
       font-weight: bold;
       color: #fff;
     }
+    #gameWrapper {
+      transform: scale(0.85);
+      transform-origin: top center;
+    }
   </style>
 </head>
 <body>
@@ -151,27 +155,31 @@
 <!--     <button onclick="submitUserInfo()" style="bg:#5e56dc">Play Game</button> -->
     <button onclick="submitUserInfo()" style="background-color: #5e56dc; color: white; border: none; border-radius: 10px; cursor: pointer;">Play Game</button>
   </div>
-  <div id="controls">
-    <button id="startBtn" style="background-color: #27e830; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Start Game</button>
-    <button onclick="closeGame()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close Game</button>
-  </div>
-  <div id="infoBar">
-    <div id="lives">Lives: 3</div>
-    <div id="score">Score: 0</div>
-    <div id="timer">Time: 30s</div>
-  </div>
-  <canvas id="gameCanvas" width="330" height="550"></canvas>
-  <div id="touchButtons">
-    <button class="touch-btn" id="leftBtn">⬅️</button>
-    <button class="touch-btn" id="rightBtn">➡️</button>
-  </div>
-  <div id="popup">
-    <div id="popupContent">
-      <h2>Game Over!</h2>
-      <p id="finalScore">Score: 0</p>
-      <button onclick="closePopup()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close</button>
+  
+  <div id="gameWrapper">
+    <div id="controls">
+      <button id="startBtn" style="background-color: #27e830; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Start Game</button>
+      <button onclick="closeGame()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close Game</button>
+    </div>
+    <div id="infoBar">
+      <div id="lives">Lives: 3</div>
+      <div id="score">Score: 0</div>
+      <div id="timer">Time: 30s</div>
+    </div>
+    <canvas id="gameCanvas" width="330" height="550"></canvas>
+    <div id="touchButtons">
+      <button class="touch-btn" id="leftBtn">⬅️</button>
+      <button class="touch-btn" id="rightBtn">➡️</button>
+    </div>
+    <div id="popup">
+      <div id="popupContent">
+        <h2>Game Over!</h2>
+        <p id="finalScore">Score: 0</p>
+        <button onclick="closePopup()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close</button>
+      </div>
     </div>
   </div>
+  
   <!-- Audio -->
   <audio id="bgMusic" loop autoplay>
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/bg.mp3" type="audio/mpeg">
