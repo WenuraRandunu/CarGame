@@ -7,7 +7,7 @@
   <style>
     * { box-sizing: border-box; }
     body {
-      margin: 0;
+      margin: 5%;
       background: #111;
       font-family: sans-serif;
       color: #fff;
@@ -136,10 +136,6 @@
       font-weight: bold;
       color: #fff;
     }
-    #gameWrapper {
-      transform: scale(0.85);
-      transform-origin: top center;
-    }
   </style>
 </head>
 <body>
@@ -155,8 +151,7 @@
 <!--     <button onclick="submitUserInfo()" style="bg:#5e56dc">Play Game</button> -->
     <button onclick="submitUserInfo()" style="background-color: #5e56dc; color: white; border: none; border-radius: 10px; cursor: pointer;">Play Game</button>
   </div>
-  
-  <div id="gameWrapper">
+
     <div id="controls">
       <button id="startBtn" style="background-color: #27e830; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Start Game</button>
       <button onclick="closeGame()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close Game</button>
@@ -178,7 +173,6 @@
         <button onclick="closePopup()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close</button>
       </div>
     </div>
-  </div>
   
   <!-- Audio -->
   <audio id="bgMusic" loop autoplay>
