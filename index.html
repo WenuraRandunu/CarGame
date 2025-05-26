@@ -214,8 +214,8 @@
       iconImages[icon.type] = img;
     });
 
-    const pointWords = ["DDS", "Centerlines", "Defect\nHandling", "IPS", "UPS", "Kaizen", "5S"];
-    const wordBlocks = ["Absenteism", "Reject", "Rework", "Break\ndown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
+    const pointWords = ["DDS", "Center\nlines", "Defect\nHandling", "IPS", "UPS", "Kaizen", "5S"];
+    const wordBlocks = ["Absenteeism", "Reject", "Rework", "Break\ndown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
 
     function updateInfo() {
       document.getElementById("score").innerText = "Score: " + score;
@@ -262,7 +262,7 @@
           ctx.font = "bold 12px sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = "#08ea91";
+          ctx.fillStyle = "#d38bf7";
           const lines = item.word.split("\n");
           const boxX = item.x + 5, boxY = item.y + 5, boxW = 60, boxH = 60;
           ctx.fillRect(boxX, boxY, boxW, boxH);
