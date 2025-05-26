@@ -215,7 +215,7 @@
     });
 
     const pointWords = ["DDS", "Centerlines", "Defect\nHandling", "IPS", "UPS", "Kaizen", "5S"];
-    const wordBlocks = ["Absenteeism", "Reject", "Rework", "Breakdown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
+    const wordBlocks = ["Absenteism", "Reject", "Rework", "Break\ndown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
 
     function updateInfo() {
       document.getElementById("score").innerText = "Score: " + score;
@@ -264,7 +264,7 @@
           ctx.textBaseline = "middle";
           ctx.fillStyle = "lightblue";
           const lines = item.word.split("\n");
-          const boxX = item.x + 5, boxY = item.y + 5, boxW = 64, boxH = 60;
+          const boxX = item.x + 5, boxY = item.y + 5, boxW = 60, boxH = 60;
           ctx.fillRect(boxX, boxY, boxW, boxH);
           ctx.fillStyle = "#000"; // Black text
           lines.forEach((line, i) => {
