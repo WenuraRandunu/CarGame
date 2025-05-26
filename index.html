@@ -55,8 +55,11 @@
       margin-top: 5px;
     }
     .touch-btn {
-      padding: 10px 20px;
-      font-size: 14px;
+      /* Original size */
+      /* padding: 10px 20px;
+         font-size: 14px; */
+      padding: 12.5px 25px;
+      font-size: 17.5px;
       margin: 0 10px;
       background: #444;
       color: white;
@@ -98,48 +101,25 @@
       position: absolute;
       top: 10px;
       right: 10px;
-      width: 80px; /* Example size; adjust if needed */
+      width: 80px;
       height: auto;
     }
     #formLogo {
       width: 100%;
-      max-width: 200px; /* Matches common input width */
+      max-width: 200px;
       margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-
-<!--   <div id="userForm">
-    <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/aps.png" alt="Logo 1" style="width: 120px; margin-bottom: 10px;" />
-    <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/cps.png" alt="Logo 2" style="width: 120px; margin-bottom: 20px;" />
-  
-    <input type="text" id="name" placeholder="Name" required />
-    <input type="text" id="empNo" placeholder="Employee Number" required />
-    <input type="text" id="dept" placeholder="Department" required />
-    <button onclick="submitUserInfo()" style="font-size: 1.2em; padding: 0.8em 1.6em; margin-top: 1em;">Play Game</button>
-  </div> -->
-
-  <!-- First image: Top-right corner -->
-  <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/aps.png" 
-       alt="Logo 1" id="topRightLogo" />
-  
-  <!-- User form -->
+  <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/aps.png" alt="Logo 1" id="topRightLogo" />
   <div id="userForm">
-    <!-- Second image: same width as input -->
-    <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/cps.png" 
-         alt="Logo 2" id="formLogo" />
-  
+    <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/cps.png" alt="Logo 2" id="formLogo" />
     <input type="text" id="name" placeholder="Name" required />
     <input type="text" id="empNo" placeholder="Employee Number" required />
     <input type="text" id="dept" placeholder="Department" required />
     <button onclick="submitUserInfo()" style="font-size: 1.1em; padding: 0.8em 1.6em; margin-top: 1em;">Play Game</button>
   </div>
-
-
-
-
-
   <div id="controls">
     <button id="startBtn">Start Game</button>
     <button onclick="closeGame()">Close Game</button>
@@ -161,8 +141,6 @@
       <button onclick="closePopup()">Close</button>
     </div>
   </div>
-
-  <!-- Audio elements -->
   <audio id="bgMusic" loop autoplay>
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/bg.mp3" type="audio/mpeg">
   </audio>
@@ -172,16 +150,17 @@
   <audio id="asdSound">
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
-
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
     const githubBase = "https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets";
-    const player = { lane: 1, y: 440, width: 55, height: 66 };
+    // const player = { lane: 1, y: 440, width: 55, height: 66 }; // original size
+    const player = { lane: 1, y: 440, width: 66, height: 79 }; // increased by 20%
     let score = 0, lives = 3, timeLeft = 20;
     let gameRunning = false, magnetActive = false, magnetTimer = 0;
-    let speed = 1.5, lastSpeedIncrease = Date.now();
+    let speed = 1.5;
+    // let lastSpeedIncrease = Date.now(); // commented out
     const items = [];
     let spawnInterval;
     let userData = {};
@@ -250,11 +229,13 @@
           ctx.font = "bold 12px sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = item.type === "point" ? "#90EE90" : "#FF6961";
+          ctx.fillStyle = "#90EE90"; // unified color
           const lines = item.word.split("\n");
           const boxX = item.x + 5, boxY = item.y + 5, boxW = 60, boxH = 60;
-          ctx.fillRect(boxX, boxY, boxW, boxH);
-          ctx.fillStyle = "#000";
+
+          // ctx.fillRect(boxX, boxY, boxW, boxH); // box removed
+          // ctx.fillStyle = "#000"; // text color inside box removed
+          
           const lineHeight = 14;
           lines.forEach((line, i) => {
             ctx.fillText(line, boxX + boxW / 2, boxY + boxH / 2 - (lines.length * lineHeight) / 2 + i * lineHeight + lineHeight / 2);
@@ -273,10 +254,11 @@
         }
       });
 
-      if (Date.now() - lastSpeedIncrease >= 5000) {
-        speed *= 1.2;
-        lastSpeedIncrease = Date.now();
-      }
+      // Speed increase removed
+      // if (Date.now() - lastSpeedIncrease >= 5000) {
+      //   speed *= 1.2;
+      //   lastSpeedIncrease = Date.now();
+      // }
     }
 
     function checkCollisions() {
@@ -364,7 +346,6 @@
       document.getElementById("finalScore").innerText = `Score: ${score}`;
       document.getElementById("popup").style.display = "flex";
 
-      // Submit to Google Apps Script
       if (userSubmitted) {
         const payload = {
           name: userData.name,
@@ -391,7 +372,7 @@
       gameRunning = false;
       clearInterval(spawnInterval);
       document.getElementById("bgMusic").pause();
-      window.close(); // Will only work for windows opened via JavaScript
+      window.close();
     }
 
     function submitUserInfo() {
