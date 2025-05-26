@@ -55,7 +55,6 @@
       margin-top: 5px;
     }
     .touch-btn {
-      /* padding: 10px 20px; font-size: 14px; */
       padding: 12.5px 25px;
       font-size: 17.5px;
       margin: 0 10px;
@@ -90,18 +89,26 @@
       text-align: center;
     }
     #userForm {
+      background: #000; /* Black background */
       display: flex;
       flex-direction: column;
       align-items: center;
       transform: scale(1.3);
       transform-origin: top center;
       margin-top: 50px;
+      padding: 20px;
+      border-radius: 10px;
     }
     #userForm input {
       padding: 10px;
       font-size: 16px;
       width: 250px;
       margin: 5px 0;
+      background-color: lightblue;
+      color: black;
+      border-radius: 8px;
+      border: none;
+      border-radius: 10px;
     }
     #topRightLogo {
       position: absolute;
@@ -141,7 +148,7 @@
     <input type="text" id="name" placeholder="Name" required />
     <input type="text" id="empNo" placeholder="Employee Number" required />
     <input type="text" id="dept" placeholder="Department" required />
-    <button onclick="submitUserInfo()" style="font-size: 1.1em; padding: 0.8em 1.6em; margin-top: 1em;">Play Game</button>
+    <button onclick="submitUserInfo()">Play Game</button>
   </div>
   <div id="controls">
     <button id="startBtn">Start Game</button>
@@ -150,7 +157,7 @@
   <div id="infoBar">
     <div id="lives">Lives: 3</div>
     <div id="score">Score: 0</div>
-    <div id="timer">Time: 20s</div>
+    <div id="timer">Time: 30s</div>
   </div>
   <canvas id="gameCanvas" width="330" height="550"></canvas>
   <div id="touchButtons">
@@ -174,7 +181,6 @@
   <audio id="asdSound">
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
-
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
@@ -183,13 +189,11 @@
     const player = {
       lane: 1,
       y: 440,
-      // width: 55, height: 66, // old size
-      width: 66, height: 79 // 20% bigger
+      width: 66, height: 79
     };
-    let score = 0, lives = 3, timeLeft = 20;
+    let score = 0, lives = 3, timeLeft = 30; // Increased time to 30
     let gameRunning = false, magnetActive = false, magnetTimer = 0;
-    let speed = 1.5;
-    // let lastSpeedIncrease = Date.now(); // Removed speed increase
+    let speed = 1.7; // Increased from 1.5 to 1.7
     const items = [];
     let spawnInterval;
     let userData = {};
@@ -219,7 +223,7 @@
     }
 
     function resetGameState() {
-      score = 0; lives = 3; timeLeft = 20; speed = 1.5;
+      score = 0; lives = 3; timeLeft = 30; speed = 1.7; // Reset with updated time and speed
       items.length = 0; magnetActive = false;
       updateInfo();
     }
@@ -257,10 +261,11 @@
           ctx.font = "bold 12px sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = "#fff"; // All words white
+          ctx.fillStyle = "lightblue";
           const lines = item.word.split("\n");
           const boxX = item.x + 5, boxY = item.y + 5, boxW = 60, boxH = 60;
           ctx.fillRect(boxX, boxY, boxW, boxH);
+          ctx.fillStyle = "#000"; // Black text
           lines.forEach((line, i) => {
             ctx.fillText(line, boxX + boxW / 2, boxY + boxH / 2 - (lines.length * 14) / 2 + i * 14 + 7);
           });
@@ -277,12 +282,6 @@
           item.y += (player.y - item.y) * 0.05;
         }
       });
-
-      // Speed increase disabled
-      // if (Date.now() - lastSpeedIncrease >= 5000) {
-      //   speed *= 1.2;
-      //   lastSpeedIncrease = Date.now();
-      // }
     }
 
     function checkCollisions() {
@@ -341,9 +340,7 @@
     }
 
     function startGame() {
-      const bgMusic = document.getElementById("bgMusic");
-      bgMusic.currentTime = 0;
-      bgMusic.play();
+      document.getElementById("bgMusic").play();
       resetGameState();
       gameRunning = true;
       gameLoop();
@@ -388,7 +385,7 @@
 
     function closePopup() {
       document.getElementById("popup").style.display = "none";
-      resetGameState(); // Go to state after form submit
+      resetGameState();
       document.getElementById("controls").style.display = "block";
       document.getElementById("infoBar").style.display = "flex";
       document.getElementById("touchButtons").style.display = "flex";
