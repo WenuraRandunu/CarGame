@@ -18,13 +18,15 @@
       flex-direction: column;
       overflow: hidden;
     }
-    #controls, #infoBar, #touchButtons, #gameCanvas { display: none; }
+    #controls, #infoBar, #touchButtons, #gameCanvas, #popup { display: none; }
+
     button {
       padding: 5px 10px;
       margin: 3px;
       font-size: 12px;
       cursor: pointer;
     }
+
     #container {
       display: flex;
       flex-direction: column;
@@ -32,6 +34,7 @@
       width: 100%;
       height: 90vh;
     }
+
     #infoBar {
       display: flex;
       justify-content: space-around;
@@ -40,6 +43,7 @@
       margin-bottom: 5px;
       font-size: 14px;
     }
+
     #gameCanvas {
       width: 95vw;
       max-width: 330px;
@@ -49,15 +53,15 @@
       border: 2px solid white;
       touch-action: none;
     }
+
     #touchButtons {
       display: flex;
       justify-content: center;
       margin-top: 5px;
     }
+
     .touch-btn {
-      /* Original size */
-      /* padding: 10px 20px;
-         font-size: 14px; */
+      /* padding: 10px 20px; font-size: 14px; */
       padding: 12.5px 25px;
       font-size: 17.5px;
       margin: 0 10px;
@@ -66,6 +70,7 @@
       border: none;
       border-radius: 5px;
     }
+
     #popup {
       position: fixed;
       top: 0;
@@ -78,12 +83,14 @@
       justify-content: center;
       z-index: 999;
     }
+
     #popupContent {
       background: #222;
       padding: 20px;
       border-radius: 10px;
       text-align: center;
     }
+
     #userForm {
       display: flex;
       flex-direction: column;
@@ -92,11 +99,13 @@
       transform-origin: top center;
       margin-top: 50px;
     }
+
     #userForm input {
       padding: 8px;
       font-size: 14px;
       width: 200px;
     }
+
     #topRightLogo {
       position: absolute;
       top: 10px;
@@ -104,17 +113,31 @@
       width: 80px;
       height: auto;
     }
+
     #formLogo {
       width: 100%;
       max-width: 200px;
       margin-bottom: 20px;
     }
+
+    #gameTitle {
+      position: absolute;
+      top: 20px;
+      right: 110px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
-  <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/aps.png" alt="Logo 1" id="topRightLogo" />
+  <!-- Game title -->
+  <div id="gameTitle">2D Car Game</div>
+  <!-- Top-right logo -->
+  <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/aps.png" id="topRightLogo" alt="Logo" />
+  <!-- User form -->
   <div id="userForm">
-    <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/cps.png" alt="Logo 2" id="formLogo" />
+    <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/cps.png" id="formLogo" alt="Logo 2" />
     <input type="text" id="name" placeholder="Name" required />
     <input type="text" id="empNo" placeholder="Employee Number" required />
     <input type="text" id="dept" placeholder="Department" required />
@@ -141,6 +164,7 @@
       <button onclick="closePopup()">Close</button>
     </div>
   </div>
+  <!-- Audio -->
   <audio id="bgMusic" loop autoplay>
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/bg.mp3" type="audio/mpeg">
   </audio>
@@ -150,28 +174,33 @@
   <audio id="asdSound">
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
+
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
     const githubBase = "https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets";
-    // const player = { lane: 1, y: 440, width: 55, height: 66 }; // original size
-    const player = { lane: 1, y: 440, width: 66, height: 79 }; // increased by 20%
+    const player = {
+      lane: 1,
+      y: 440,
+      // width: 55, height: 66, // old size
+      width: 66, height: 79 // 20% bigger
+    };
     let score = 0, lives = 3, timeLeft = 20;
     let gameRunning = false, magnetActive = false, magnetTimer = 0;
     let speed = 1.5;
-    // let lastSpeedIncrease = Date.now(); // commented out
+    // let lastSpeedIncrease = Date.now(); // Removed speed increase
     const items = [];
     let spawnInterval;
     let userData = {};
     let userSubmitted = false;
 
     const carImage = new Image();
-    carImage.src = `${githubBase}/car.png`;
+    carImage.src = githubBase + "/car.png";
     const icons = [
-      { type: "group", img: `${githubBase}/group.png` },
-      { type: "safety", img: `${githubBase}/safety.png` },
-      { type: "sustainability", img: `${githubBase}/sustainability.png` },
+      { type: "group", img: githubBase + "/group.png" },
+      { type: "safety", img: githubBase + "/safety.png" },
+      { type: "sustainability", img: githubBase + "/sustainability.png" },
     ];
     const iconImages = {};
     icons.forEach(icon => {
@@ -184,14 +213,15 @@
     const wordBlocks = ["Absenteeism", "Reject", "Rework", "Breakdown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
 
     function updateInfo() {
-      document.getElementById("score").innerText = `Score: ${score}`;
-      document.getElementById("lives").innerText = `Lives: ${lives}`;
-      document.getElementById("timer").innerText = `Time: ${timeLeft}s`;
+      document.getElementById("score").innerText = "Score: " + score;
+      document.getElementById("lives").innerText = "Lives: " + lives;
+      document.getElementById("timer").innerText = "Time: " + timeLeft + "s";
     }
 
     function resetGameState() {
       score = 0; lives = 3; timeLeft = 20; speed = 1.5;
-      items.length = 0; updateInfo();
+      items.length = 0; magnetActive = false;
+      updateInfo();
     }
 
     function drawRoad() {
@@ -210,9 +240,7 @@
       for (let i = 1; i < 3; i++) {
         const x = 5 + i * laneWidth;
         ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
+        ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
       }
       ctx.setLineDash([]);
     }
@@ -229,16 +257,12 @@
           ctx.font = "bold 12px sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.fillStyle = "#90EE90"; // unified color
+          ctx.fillStyle = "#fff"; // All words white
           const lines = item.word.split("\n");
           const boxX = item.x + 5, boxY = item.y + 5, boxW = 60, boxH = 60;
-
-          // ctx.fillRect(boxX, boxY, boxW, boxH); // box removed
-          // ctx.fillStyle = "#000"; // text color inside box removed
-          
-          const lineHeight = 14;
+          // ctx.fillRect(boxX, boxY, boxW, boxH); // Box removed
           lines.forEach((line, i) => {
-            ctx.fillText(line, boxX + boxW / 2, boxY + boxH / 2 - (lines.length * lineHeight) / 2 + i * lineHeight + lineHeight / 2);
+            ctx.fillText(line, boxX + boxW / 2, boxY + boxH / 2 - (lines.length * 14) / 2 + i * 14 + 7);
           });
         }
       });
@@ -254,7 +278,7 @@
         }
       });
 
-      // Speed increase removed
+      // Speed increase disabled
       // if (Date.now() - lastSpeedIncrease >= 5000) {
       //   speed *= 1.2;
       //   lastSpeedIncrease = Date.now();
@@ -343,7 +367,7 @@
       bgMusic.currentTime = 0;
       gameRunning = false;
       clearInterval(spawnInterval);
-      document.getElementById("finalScore").innerText = `Score: ${score}`;
+      document.getElementById("finalScore").innerText = "Score: " + score;
       document.getElementById("popup").style.display = "flex";
 
       if (userSubmitted) {
@@ -358,14 +382,17 @@
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
-        }).then(() => console.log("Score submitted"))
-          .catch(err => console.error("Error submitting score", err));
+        });
       }
     }
 
     function closePopup() {
       document.getElementById("popup").style.display = "none";
-      startGame();
+      resetGameState(); // Go to state after form submit
+      document.getElementById("controls").style.display = "block";
+      document.getElementById("infoBar").style.display = "flex";
+      document.getElementById("touchButtons").style.display = "flex";
+      document.getElementById("gameCanvas").style.display = "block";
     }
 
     function closeGame() {
@@ -379,7 +406,7 @@
       const name = document.getElementById("name").value.trim();
       const empNo = document.getElementById("empNo").value.trim();
       const dept = document.getElementById("dept").value.trim();
-    
+
       if (!name || !empNo || !dept) {
         alert("Please fill in all fields before playing the game.");
         return;
@@ -388,7 +415,7 @@
       userData.employeeNumber = empNo;
       userData.department = dept;
       userSubmitted = true;
-      
+
       document.getElementById("userForm").style.display = "none";
       document.getElementById("controls").style.display = "block";
       document.getElementById("infoBar").style.display = "flex";
