@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <!-- Prevents zooming , user-scalable=no-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Responsive Car Game</title>
   <style>
     * { box-sizing: border-box; }
@@ -30,7 +30,7 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
-      height: 85vh;
+      height: 85vh; /*was 90vh*/
     }
     #infoBar {
       display: flex;
@@ -41,13 +41,13 @@
       font-size: 14px;
     }
     #gameCanvas {
-      width: 80vw;
-      max-width: 280px;
+      width: 80vw; /*was 95vw*/
+      max-width: 280px; /*was 330px*/
       height: auto;
       aspect-ratio: 3 / 5;
       background: #333;
       border: 2px solid white;
-      touch-action: manipulation; /* Prevent zooming and panning */
+      touch-action: none;
     }
     #touchButtons {
       display: flex;
@@ -58,8 +58,8 @@
       padding: 12.5px 25px;
       font-size: 17.5px;
       margin: 0 10px;
-      background: #2aa0e1; /* Changed from #444 to light blue */
-      color: black;
+      background: #444;
+      color: white;
       border: none;
       border-radius: 5px;
     }
@@ -89,7 +89,7 @@
       text-align: center;
     }
     #userForm {
-      background: #000;
+      background: #000; /* Black background */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -108,6 +108,7 @@
       color: black;
       border-radius: 8px;
       border: none;
+      border-radius: 10px;
     }
     #topRightLogo {
       position: absolute;
@@ -138,7 +139,7 @@
   </style>
 </head>
 <body>
-    <!-- Top-right logo -->
+  <!-- Top-right logo -->
   <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/aps.png" id="topRightLogo" alt="Logo" />
   <!-- User form -->
   <div id="userForm">
@@ -181,7 +182,6 @@
   <audio id="asdSound">
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
-
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
@@ -192,9 +192,9 @@
       y: 440,
       width: 66, height: 79
     };
-    let score = 0, lives = 3, timeLeft = 60; // Changed from 30 to 60
+    let score = 0, lives = 3, timeLeft = 30; // Increased time to 30
     let gameRunning = false, magnetActive = false, magnetTimer = 0;
-    let speed = 2.2; // Increased speed from 1.7 to 2.2
+    let speed = 1.7; // Increased from 1.5 to 1.7
     const items = [];
     let spawnInterval;
     let userData = {};
@@ -224,7 +224,7 @@
     }
 
     function resetGameState() {
-      score = 0; lives = 3; timeLeft = 60; speed = 2.1; // Updated here
+      score = 0; lives = 3; timeLeft = 30; speed = 1.7; // Reset with updated time and speed
       items.length = 0; magnetActive = false;
       updateInfo();
     }
@@ -254,50 +254,25 @@
       ctx.drawImage(carImage, lanes[player.lane], player.y, player.width, player.height);
     }
 
-    // function drawItems() {
-    //   items.forEach(item => {
-    //     if (item.type === "icon") {
-    //       ctx.drawImage(iconImages[item.iconType], item.x + 5, item.y + 5, 50, 50);
-    //     } else {
-    //       ctx.font = "bold 12px sans-serif";
-    //       ctx.textAlign = "center";
-    //       ctx.textBaseline = "middle";
-    //       ctx.fillStyle = "#d38bf7";
-    //       const lines = item.word.split("\n");
-    //       const boxX = item.x + 5, boxY = item.y + 5, boxW = 64, boxH = 64;
-    //       ctx.fillRect(boxX, boxY, boxW, boxH);
-    //       ctx.fillStyle = "#000";
-    //       lines.forEach((line, i) => {
-    //         ctx.fillText(line, boxX + boxW / 2, boxY + boxH / 2 - (lines.length * 14) / 2 + i * 14 + 7);
-    //       });
-    //     }
-    //   });
-    // }
     function drawItems() {
       items.forEach(item => {
-        const boxSize = 64;
-        const boxX = item.x - boxSize / 2;
-        const boxY = item.y;
-    
         if (item.type === "icon") {
-          ctx.drawImage(iconImages[item.iconType], item.x - 25, item.y, 50, 50); // Center icons (50x50) around lane
+          ctx.drawImage(iconImages[item.iconType], item.x + 5, item.y + 5, 50, 50);
         } else {
           ctx.font = "bold 12px sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillStyle = "#d38bf7";
-    
-          ctx.fillRect(boxX, boxY, boxSize, boxSize); // Draw box centered on lane
-          ctx.fillStyle = "#000"; // Black text
-    
           const lines = item.word.split("\n");
+          const boxX = item.x + 5, boxY = item.y + 5, boxW = 64, boxH = 64;
+          ctx.fillRect(boxX, boxY, boxW, boxH);
+          ctx.fillStyle = "#000"; // Black text
           lines.forEach((line, i) => {
-            ctx.fillText(line, item.x, boxY + boxSize / 2 - (lines.length * 14) / 2 + i * 14 + 7);
+            ctx.fillText(line, boxX + boxW / 2, boxY + boxH / 2 - (lines.length * 14) / 2 + i * 14 + 7);
           });
         }
       });
     }
-
 
     function moveItems() {
       items.forEach(item => {
@@ -342,10 +317,8 @@
       const laneX = lanes[lane];
       const lastItem = [...items].reverse().find(i => i.x === laneX);
       if (lastItem && lastItem.y < 130) return;
-
       const rand = Math.random();
-      const type = rand < 0.35 ? "word" : rand < 0.75 ? "point" : "icon"; // Adjusted spawn rates: icons +5%, words -5%
-
+      const type = rand < 0.4 ? "word" : rand < 0.75 ? "point" : "icon";
       if (type === "icon") {
         const icon = icons[Math.floor(Math.random() * icons.length)].type;
         items.push({ type, x: laneX, y: -70, iconType: icon });
