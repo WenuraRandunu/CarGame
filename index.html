@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/> <!-- Prevents zooming -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <!-- Prevents zooming user-scalable=no-->
   <title>Responsive Car Game</title>
   <style>
     * { box-sizing: border-box; }
@@ -47,7 +47,7 @@
       aspect-ratio: 3 / 5;
       background: #333;
       border: 2px solid white;
-      touch-action: none;
+      touch-action: manipulation; /* Prevent zooming and panning */
     }
     #touchButtons {
       display: flex;
@@ -58,7 +58,7 @@
       padding: 12.5px 25px;
       font-size: 17.5px;
       margin: 0 10px;
-      background: #51b6ee; /* Changed from #444 to light blue */
+      background: lightblue; /* Changed from #444 to light blue */
       color: black;
       border: none;
       border-radius: 5px;
@@ -194,7 +194,7 @@
     };
     let score = 0, lives = 3, timeLeft = 60; // Changed from 30 to 60
     let gameRunning = false, magnetActive = false, magnetTimer = 0;
-    let speed = 2.1; // Increased speed from 1.7 to 2.1
+    let speed = 2.2; // Increased speed from 1.7 to 2.2
     const items = [];
     let spawnInterval;
     let userData = {};
