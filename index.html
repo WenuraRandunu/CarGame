@@ -153,14 +153,14 @@
       <li><strong>Point Words</strong>: Special words that give bonus points when matched correctly.</li>
       <li><strong>Icons</strong>: 
         <ul>
-          <li><img src="assets/safety.png" style="width:24px;vertical-align:middle;"> Brain – Cognitive skill</li>
-          <li><img src="assets/group.png" style="width:24px;vertical-align:middle;"> Heart – Emotional skill</li>
-          <li><img src="assets/sustainability.png" style="width:24px;vertical-align:middle;"> Star – Bonus or wildcard</li>
+          <li><img src="assets/safety.png" style="width:24px;vertical-align:middle;">Brain – Cognitive skill</li>
+          <li><img src="assets/group.png" style="width:24px;vertical-align:middle;">Heart – Emotional skill</li>
+          <li><img src="assets/sustainability.png" style="width:24px;vertical-align:middle;">Star – Bonus or wildcard</li>
         </ul>
       </li>
     </ul>
 
-    <h2>🕹️ How to Play</h2>
+    <h2>How to Play</h2>
     <ul>
       <li>Items drop into three lanes from the top.</li>
       <li>Your job is to guide the right item to the correct lane.</li>
@@ -468,16 +468,6 @@
       if (touchX < mid && player.lane > 0) player.lane--;
       else if (touchX >= mid && player.lane < 2) player.lane++;
     });
-    function startGame() {
-      document.getElementById('instruction-screen').style.display = 'none';
-      // Start game logic here if needed
-      // e.g., startDropping(), enableInput(), etc.
-    }
-
-    window.onload = () => {
-      // Pause game until user clicks Start Game
-      if (typeof pauseGame === 'function') pauseGame(); // optional: if you have a pause function
-    };
   </script>
 </body>
 </html>
