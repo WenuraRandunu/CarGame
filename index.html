@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/> <!-- Prevents zooming -->
   <title>Responsive Car Game</title>
   <style>
     * { box-sizing: border-box; }
@@ -30,7 +30,7 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
-      height: 85vh; /*was 90vh*/
+      height: 85vh;
     }
     #infoBar {
       display: flex;
@@ -41,13 +41,13 @@
       font-size: 14px;
     }
     #gameCanvas {
-      width: 80vw; /*was 95vw*/
-      max-width: 280px; /*was 330px*/
+      width: 80vw;
+      max-width: 280px;
       height: auto;
       aspect-ratio: 3 / 5;
       background: #333;
       border: 2px solid white;
-      touch-action: none;
+      touch-action: manipulation; /* Prevent zooming and panning */
     }
     #touchButtons {
       display: flex;
@@ -58,8 +58,8 @@
       padding: 12.5px 25px;
       font-size: 17.5px;
       margin: 0 10px;
-      background: #444;
-      color: white;
+      background: lightblue; /* Changed from #444 to light blue */
+      color: black;
       border: none;
       border-radius: 5px;
     }
@@ -89,7 +89,7 @@
       text-align: center;
     }
     #userForm {
-      background: #000; /* Black background */
+      background: #000;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -108,7 +108,6 @@
       color: black;
       border-radius: 8px;
       border: none;
-      border-radius: 10px;
     }
     #topRightLogo {
       position: absolute;
@@ -139,7 +138,7 @@
   </style>
 </head>
 <body>
-  <!-- Top-right logo -->
+    <!-- Top-right logo -->
   <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/aps.png" id="topRightLogo" alt="Logo" />
   <!-- User form -->
   <div id="userForm">
@@ -182,6 +181,7 @@
   <audio id="asdSound">
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
+
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
@@ -192,9 +192,9 @@
       y: 440,
       width: 66, height: 79
     };
-    let score = 0, lives = 3, timeLeft = 30; // Increased time to 30
+    let score = 0, lives = 3, timeLeft = 60; // Changed from 30 to 60
     let gameRunning = false, magnetActive = false, magnetTimer = 0;
-    let speed = 1.7; // Increased from 1.5 to 1.7
+    let speed = 2.1; // Increased speed from 1.7 to 2.1
     const items = [];
     let spawnInterval;
     let userData = {};
@@ -224,7 +224,7 @@
     }
 
     function resetGameState() {
-      score = 0; lives = 3; timeLeft = 30; speed = 1.7; // Reset with updated time and speed
+      score = 0; lives = 3; timeLeft = 60; speed = 2.1; // Updated here
       items.length = 0; magnetActive = false;
       updateInfo();
     }
@@ -266,7 +266,7 @@
           const lines = item.word.split("\n");
           const boxX = item.x + 5, boxY = item.y + 5, boxW = 64, boxH = 64;
           ctx.fillRect(boxX, boxY, boxW, boxH);
-          ctx.fillStyle = "#000"; // Black text
+          ctx.fillStyle = "#000";
           lines.forEach((line, i) => {
             ctx.fillText(line, boxX + boxW / 2, boxY + boxH / 2 - (lines.length * 14) / 2 + i * 14 + 7);
           });
@@ -317,8 +317,10 @@
       const laneX = lanes[lane];
       const lastItem = [...items].reverse().find(i => i.x === laneX);
       if (lastItem && lastItem.y < 130) return;
+
       const rand = Math.random();
-      const type = rand < 0.4 ? "word" : rand < 0.75 ? "point" : "icon";
+      const type = rand < 0.35 ? "word" : rand < 0.75 ? "point" : "icon"; // Adjusted spawn rates: icons +5%, words -5%
+
       if (type === "icon") {
         const icon = icons[Math.floor(Math.random() * icons.length)].type;
         items.push({ type, x: laneX, y: -70, iconType: icon });
