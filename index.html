@@ -144,9 +144,31 @@
   <div id="userForm">
     <div id="formTitle">Team Drive 2X CPS</div>
     <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/cps.png" id="formLogo" alt="Logo 2" />
-    <input type="text" id="name" placeholder="Name" required />
+<!--     <input type="text" id="name" placeholder="Name" required />
     <input type="text" id="empNo" placeholder="Employee Number" required />
-    <input type="text" id="dept" placeholder="Department" required />
+    <input type="text" id="dept" placeholder="Department" required /> -->
+
+    <!-- Name Field: only letters (a-z, A-Z), max length 30 -->
+    <input type="text" id="name" placeholder="Name" required 
+      maxlength="30" 
+      pattern="[A-Za-z\s]+" 
+      title="Only letters are allowed" 
+      inputmode="text" />
+    
+    <!-- Employee Number: only numbers (0-9), exactly 6 digits -->
+    <input type="text" id="empNo" placeholder="Employee Number" required 
+      maxlength="5" 
+      pattern="\d{6}" 
+      title="Enter exactly 6 digits" 
+      inputmode="numeric" />
+    
+    <!-- Department Field: only letters (a-z, A-Z), max length 30 -->
+    <input type="text" id="dept" placeholder="Department" required 
+      maxlength="30" 
+      pattern="[A-Za-z\s]+" 
+      title="Only letters are allowed" 
+      inputmode="text" />
+    
 <!--     <button onclick="submitUserInfo()" style="bg:#5e56dc">Play Game</button> -->
     <button onclick="submitUserInfo()" style="background-color: #5e56dc; color: white; border: none; border-radius: 10px; cursor: pointer;">Play Game</button>
   </div>
@@ -183,6 +205,20 @@
   </audio>
 
   <script>
+
+        // Input validation script
+    document.getElementById("name").addEventListener("input", function () {
+      this.value = this.value.replace(/[^a-zA-Z]/g, "").slice(0, 30); // Letters only, max 30
+    });
+
+    document.getElementById("dept").addEventListener("input", function () {
+      this.value = this.value.replace(/[^a-zA-Z]/g, "").slice(0, 30); // Letters only, max 30
+    });
+
+    document.getElementById("empNo").addEventListener("input", function () {
+      this.value = this.value.replace(/[^0-9]/g, "").slice(0, 5); // Numbers only, max 5 digits
+    });
+    
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
