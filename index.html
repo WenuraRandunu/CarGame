@@ -425,35 +425,92 @@
       //   updateInfo();
       // }, 1000);
 
-      function startGame() {
-        document.getElementById("bgMusic").play();
-        resetGameState();
-        gameRunning = true;
-        gameLoop();
+      // function startGame() {
+      //   document.getElementById("bgMusic").play();
+      //   resetGameState();
+      //   gameRunning = true;
+      //   gameLoop();
       
-        if (spawnInterval) clearInterval(spawnInterval);
-        spawnInterval = setInterval(spawnItems, 200);
+      //   if (spawnInterval) clearInterval(spawnInterval);
+      //   spawnInterval = setInterval(spawnItems, 200);
       
-        // Timer countdown
-        const timerInterval = setInterval(() => {
-          if (!gameRunning) return clearInterval(timerInterval);
-          if (!pausedForQuestion) timeLeft--; // stop timer if paused
-          if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            clearInterval(spawnInterval);
-            endGame();
-          }
-          updateInfo();
-        }, 1000);
+      //   // Timer countdown
+      //   const timerInterval = setInterval(() => {
+      //     if (!gameRunning) return clearInterval(timerInterval);
+      //     if (!pausedForQuestion) timeLeft--; // stop timer if paused
+      //     if (timeLeft <= 0) {
+      //       clearInterval(timerInterval);
+      //       clearInterval(spawnInterval);
+      //       endGame();
+      //     }
+      //     updateInfo();
+      //   }, 1000);
       
-        // Question every 10s
-        if (questionInterval) clearInterval(questionInterval);
-        questionInterval = setInterval(() => {
-          if (gameRunning && !pausedForQuestion) showQuestion();
-        }, 10000);
-      }
+      //   // Question every 10s
+      //   if (questionInterval) clearInterval(questionInterval);
+      //   questionInterval = setInterval(() => {
+      //     if (gameRunning && !pausedForQuestion) showQuestion();
+      //   }, 10000);
+      // }
 
-      
+    let nextQuestionIn = 10; // Track gameplay seconds before next question
+    
+    function startGame() {
+      document.getElementById("bgMusic").play();
+      resetGameState();
+      gameRunning = true;
+      gameLoop();
+    
+      if (spawnInterval) clearInterval(spawnInterval);
+      spawnInterval = setInterval(spawnItems, 200);
+    
+      const timerInterval = setInterval(() => {
+        if (!gameRunning) return clearInterval(timerInterval);
+    
+        if (!pausedForQuestion) {
+          timeLeft--;          // Countdown continues
+          nextQuestionIn--;    // Track time until next question
+    
+          if (nextQuestionIn <= 0) {
+            showQuestion();
+          }
+        }
+    
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          clearInterval(spawnInterval);
+          endGame();
+        }
+    
+        updateInfo();
+      }, 1000);
+    }
+
+    function showQuestion() {
+      pausedForQuestion = true;
+      document.getElementById("questionModal").style.display = "flex";
+    }
+
+function checkAnswer(selectedIndex) {
+  let q = questions[currentQuestionIndex];
+
+  if (selectedIndex === q.answer) {
+    score += 10;
+  } else {
+    timeLeft = Math.max(0, timeLeft - 5); // Penalty
+  }
+
+  // Hide question modal
+  document.getElementById("questionModal").style.display = "none";
+  pausedForQuestion = false;
+
+  // Reset counter for next question
+  nextQuestionIn = 10;
+
+  // Move to next question
+  currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
+}
+
     // }
 
     function endGame() {
