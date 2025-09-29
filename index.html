@@ -487,43 +487,75 @@
     const questionTextEl = document.getElementById("questionText");
     const answersEl = document.getElementById("answers");
 
-    function showQuestion() {
-      if (!gameRunning) return;
-      pausedForQuestion = true;
-      // pick a random question
-      currentQuestion = questions[Math.floor(Math.random() * questions.length)];
-      questionTextEl.innerText = currentQuestion.q;
-      answersEl.innerHTML = "";
-      currentQuestion.answers.forEach((ans, idx) => {
-        const btn = document.createElement("button");
-        btn.innerText = ans;
-        btn.onclick = () => checkQuestionAnswer(idx);
-        answersEl.appendChild(btn);
-      });
-      questionPopup.style.display = "flex";
-    }
+    // function showQuestion() {
+    //   if (!gameRunning) return;
+    //   pausedForQuestion = true;
+    //   // pick a random question
+    //   currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+    //   questionTextEl.innerText = currentQuestion.q;
+    //   answersEl.innerHTML = "";
+    //   currentQuestion.answers.forEach((ans, idx) => {
+    //     const btn = document.createElement("button");
+    //     btn.innerText = ans;
+    //     btn.onclick = () => checkQuestionAnswer(idx);
+    //     answersEl.appendChild(btn);
+    //   });
+    //   questionPopup.style.display = "flex";
+    // }
 
-    function checkQuestionAnswer(selectedIndex) {
-      // if correct -> resume; if wrong -> endGame
-      if (!currentQuestion) return;
-      if (selectedIndex === currentQuestion.correct) {
-        // correct
-        score += 10;
-        // hide popup and resume
-        questionPopup.style.display = "none";
-        pausedForQuestion = false;
-        // reset gameplay counter so player gets another 10s of play
-        nextQuestionIn = 10;
-        currentQuestion = null;
-        // resume loop and spawning (spawnInterval still running but spawnItems respects pausedForQuestion)
-        gameLoop();
-      } else {
-        // wrong answer -> immediate game over
-        questionPopup.style.display = "none";
-        endGame();
-      }
-      updateInfo();
-    }
+    // function checkQuestionAnswer(selectedIndex) {
+    //   // if correct -> resume; if wrong -> endGame
+    //   if (!currentQuestion) return;
+    //   if (selectedIndex === currentQuestion.correct) {
+    //     // correct
+    //     score += 10;
+    //     // hide popup and resume
+    //     questionPopup.style.display = "none";
+    //     pausedForQuestion = false;
+    //     // reset gameplay counter so player gets another 10s of play
+    //     nextQuestionIn = 10;
+    //     currentQuestion = null;
+    //     // resume loop and spawning (spawnInterval still running but spawnItems respects pausedForQuestion)
+    //     gameLoop();
+    //   } else {
+    //     // wrong answer -> immediate game over
+    //     questionPopup.style.display = "none";
+    //     endGame();
+    //   }
+    //   updateInfo();
+    // }
+
+    function showQuestion() {
+  pausedForQuestion = true;
+  nextQuestionIn = 10; // reset here so it doesn’t instantly trigger again
+
+  const q = questions[currentQuestionIndex];
+  document.getElementById("questionText").innerText = q.q;
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement("button");
+    btn.innerText = ans;
+    btn.onclick = () => checkAnswer(i);
+    answersDiv.appendChild(btn);
+  });
+  document.getElementById("questionModal").style.display = "flex";
+}
+
+function checkAnswer(selectedIndex) {
+  let q = questions[currentQuestionIndex];
+
+  if (selectedIndex === q.answer) {
+    score += 10;
+  } else {
+    timeLeft = Math.max(0, timeLeft - 5);
+  }
+
+  document.getElementById("questionModal").style.display = "none";
+  pausedForQuestion = false;
+  currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
+}
+
 
     // --- End / UI helpers ---
     function endGame() {
