@@ -204,6 +204,23 @@
     <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
 
+  <div id="questionPopup" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    ">
+    <div style="background:#222; padding:20px; border-radius:10px; text-align:center; width:80%; max-width:400px;">
+      <h2 id="questionText">Question goes here</h2>
+      <div id="answers"></div>
+    </div>
+  </div>
+
+
   <script>
 
         // Input validation script
@@ -366,36 +383,78 @@
       }
     }
 
-    function gameLoop() {
-      if (!gameRunning) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawRoad(); drawPlayer(); drawItems(); moveItems(); checkCollisions();
-      if (magnetActive) {
-        magnetTimer--;
-        if (magnetTimer <= 0) magnetActive = false;
-      }
-      updateInfo();
-      requestAnimationFrame(gameLoop);
-    }
-
-    function startGame() {
-      document.getElementById("bgMusic").play();
-      resetGameState();
-      gameRunning = true;
-      gameLoop();
-      if (spawnInterval) clearInterval(spawnInterval);
-      spawnInterval = setInterval(spawnItems, 200);
-      const timerInterval = setInterval(() => {
-        if (!gameRunning) return clearInterval(timerInterval);
-        timeLeft--;
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          clearInterval(spawnInterval);
-          endGame();
+    // function gameLoop() {
+    //   if (!gameRunning) return;
+    //   ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //   drawRoad(); drawPlayer(); drawItems(); moveItems(); checkCollisions();
+    //   if (magnetActive) {
+    //     magnetTimer--;
+    //     if (magnetTimer <= 0) magnetActive = false;
+    //   }
+    //   updateInfo();
+    //   requestAnimationFrame(gameLoop);
+    // }
+      function gameLoop() {
+        if (!gameRunning || pausedForQuestion) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawRoad(); drawPlayer(); drawItems(); moveItems(); checkCollisions();
+        if (magnetActive) {
+          magnetTimer--;
+          if (magnetTimer <= 0) magnetActive = false;
         }
         updateInfo();
-      }, 1000);
-    }
+        requestAnimationFrame(gameLoop);
+      }
+
+
+    // function startGame() {
+      // document.getElementById("bgMusic").play();
+      // resetGameState();
+      // gameRunning = true;
+      // gameLoop();
+      // if (spawnInterval) clearInterval(spawnInterval);
+      // spawnInterval = setInterval(spawnItems, 200);
+      // const timerInterval = setInterval(() => {
+      //   if (!gameRunning) return clearInterval(timerInterval);
+      //   timeLeft--;
+      //   if (timeLeft <= 0) {
+      //     clearInterval(timerInterval);
+      //     clearInterval(spawnInterval);
+      //     endGame();
+      //   }
+      //   updateInfo();
+      // }, 1000);
+
+      function startGame() {
+        document.getElementById("bgMusic").play();
+        resetGameState();
+        gameRunning = true;
+        gameLoop();
+      
+        if (spawnInterval) clearInterval(spawnInterval);
+        spawnInterval = setInterval(spawnItems, 200);
+      
+        // Timer countdown
+        const timerInterval = setInterval(() => {
+          if (!gameRunning) return clearInterval(timerInterval);
+          if (!pausedForQuestion) timeLeft--; // stop timer if paused
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            clearInterval(spawnInterval);
+            endGame();
+          }
+          updateInfo();
+        }, 1000);
+      
+        // Question every 5s
+        if (questionInterval) clearInterval(questionInterval);
+        questionInterval = setInterval(() => {
+          if (gameRunning && !pausedForQuestion) showQuestion();
+        }, 5000);
+      }
+
+      
+    // }
 
     function endGame() {
       const bgMusic = document.getElementById("bgMusic");
@@ -472,6 +531,63 @@
       if (touchX < mid && player.lane > 0) player.lane--;
       else if (touchX >= mid && player.lane < 2) player.lane++;
     });
+
+// Questions
+  const questions = [
+    {
+      q: "What does 5S stand for?",
+      answers: ["Sort, Set, Shine, Standardize, Sustain", "Speed, Safety, System, Save, Secure"],
+      correct: 0
+    },
+    {
+      q: "What is Kaizen?",
+      answers: ["Continuous Improvement", "Quality Inspection"],
+      correct: 0
+    },
+    {
+      q: "What does UPS stand for?",
+      answers: ["Uninterrupted Power Supply", "Universal Product System"],
+      correct: 0
+    }
+  ];
+
+let questionInterval;
+let pausedForQuestion = false;
+
+function showQuestion() {
+  if (!gameRunning) return;
+
+  pausedForQuestion = true; // stop gameplay
+  document.getElementById("questionPopup").style.display = "flex";
+
+  const randomQ = questions[Math.floor(Math.random() * questions.length)];
+  document.getElementById("questionText").innerText = randomQ.q;
+
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  randomQ.answers.forEach((ans, index) => {
+    const btn = document.createElement("button");
+    btn.innerText = ans;
+    btn.style = "display:block; margin:10px auto; padding:10px 20px; cursor:pointer; border-radius:8px;";
+    btn.onclick = () => {
+      if (index === randomQ.correct) {
+        // correct answer → continue
+        document.getElementById("questionPopup").style.display = "none";
+        pausedForQuestion = false;
+        gameLoop();
+      } else {
+        // wrong answer → end game
+        document.getElementById("questionPopup").style.display = "none";
+        endGame();
+      }
+    };
+    answersDiv.appendChild(btn);
+  });
+}
+
+
+    
   </script>
 </body>
 </html>
