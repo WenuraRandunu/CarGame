@@ -282,8 +282,9 @@
     let nextQuestionIn = 10;
     let pausedForQuestion = false;
     let currentQuestion = null; // current displayed question object
+    let currentQuestionIndex = 0;
 
-    // --- Questions bank (single definition) ---
+    // --- Questions bank ---
     const questions = [
       {
         q: "What does 5S stand for?",
@@ -314,6 +315,8 @@
       items.length = 0; magnetActive = false; magnetTimer = 0;
       nextQuestionIn = 10;
       pausedForQuestion = false;
+      currentQuestion = null;
+      currentQuestionIndex = 0;
       updateInfo();
     }
 
@@ -383,13 +386,13 @@
         if (inLane && hit) {
           if (item.type === "word") {
             lives--;
-            document.getElementById("blockSound").play();
+            try { document.getElementById("blockSound").play(); } catch(e) {}
             if (lives <= 0) return endGame();
           } else if (item.type === "point") {
             score += 5;
-            document.getElementById("asdSound").play();
+            try { document.getElementById("asdSound").play(); } catch(e) {}
           } else if (item.type === "icon") {
-            document.getElementById("asdSound").play();
+            try { document.getElementById("asdSound").play(); } catch(e) {}
             if (item.iconType === "group") lives++;
             if (item.iconType === "safety") {
               magnetActive = true;
@@ -446,7 +449,7 @@
 
     // --- Start game: timer counts down only when not paused; nextQuestionIn counts gameplay seconds ---
     function startGame() {
-      document.getElementById("bgMusic").play();
+      try { document.getElementById("bgMusic").play(); } catch(e) {}
       resetGameState();
       gameRunning = true;
       gameLoop();
@@ -487,81 +490,60 @@
     const questionTextEl = document.getElementById("questionText");
     const answersEl = document.getElementById("answers");
 
-    // function showQuestion() {
-    //   if (!gameRunning) return;
-    //   pausedForQuestion = true;
-    //   // pick a random question
-    //   currentQuestion = questions[Math.floor(Math.random() * questions.length)];
-    //   questionTextEl.innerText = currentQuestion.q;
-    //   answersEl.innerHTML = "";
-    //   currentQuestion.answers.forEach((ans, idx) => {
-    //     const btn = document.createElement("button");
-    //     btn.innerText = ans;
-    //     btn.onclick = () => checkQuestionAnswer(idx);
-    //     answersEl.appendChild(btn);
-    //   });
-    //   questionPopup.style.display = "flex";
-    // }
-
-    // function checkQuestionAnswer(selectedIndex) {
-    //   // if correct -> resume; if wrong -> endGame
-    //   if (!currentQuestion) return;
-    //   if (selectedIndex === currentQuestion.correct) {
-    //     // correct
-    //     score += 10;
-    //     // hide popup and resume
-    //     questionPopup.style.display = "none";
-    //     pausedForQuestion = false;
-    //     // reset gameplay counter so player gets another 10s of play
-    //     nextQuestionIn = 10;
-    //     currentQuestion = null;
-    //     // resume loop and spawning (spawnInterval still running but spawnItems respects pausedForQuestion)
-    //     gameLoop();
-    //   } else {
-    //     // wrong answer -> immediate game over
-    //     questionPopup.style.display = "none";
-    //     endGame();
-    //   }
-    //   updateInfo();
-    // }
-
     function showQuestion() {
-  pausedForQuestion = true;
-  nextQuestionIn = 10; // reset here so it doesn’t instantly trigger again
+      if (!gameRunning) return;
+      // pause gameplay & spawning; DO NOT reset nextQuestionIn here (reset after answer)
+      pausedForQuestion = true;
 
-  const q = questions[currentQuestionIndex];
-  document.getElementById("questionText").innerText = q.q;
-  const answersDiv = document.getElementById("answers");
-  answersDiv.innerHTML = "";
-  q.answers.forEach((ans, i) => {
-    const btn = document.createElement("button");
-    btn.innerText = ans;
-    btn.onclick = () => checkAnswer(i);
-    answersDiv.appendChild(btn);
-  });
-  document.getElementById("questionModal").style.display = "flex";
-}
+      // pick a random question (or use round-robin)
+      currentQuestionIndex = Math.floor(Math.random() * questions.length);
+      currentQuestion = questions[currentQuestionIndex];
 
-function checkAnswer(selectedIndex) {
-  let q = questions[currentQuestionIndex];
+      // populate popup
+      questionTextEl.innerText = currentQuestion.q;
+      answersEl.innerHTML = "";
+      currentQuestion.answers.forEach((ans, idx) => {
+        const btn = document.createElement("button");
+        btn.innerText = ans;
+        btn.onclick = () => checkQuestionAnswer(idx);
+        answersEl.appendChild(btn);
+      });
 
-  if (selectedIndex === q.answer) {
-    score += 10;
-  } else {
-    timeLeft = Math.max(0, timeLeft - 5);
-  }
+      // show popup
+      questionPopup.style.display = "flex";
+    }
 
-  document.getElementById("questionModal").style.display = "none";
-  pausedForQuestion = false;
-  currentQuestionIndex = (currentQuestionIndex + 1) % questions.length;
-}
+    function checkQuestionAnswer(selectedIndex) {
+      if (!currentQuestion) return;
 
+      if (selectedIndex === currentQuestion.correct) {
+        // correct: reward and resume
+        score += 10;
+        // reset counter so player gets another 10s of gameplay
+        nextQuestionIn = 10;
+      } else {
+        // wrong: immediate game over (you can change to penalty instead)
+        // Hide popup briefly then end
+        questionPopup.style.display = "none";
+        currentQuestion = null;
+        endGame();
+        return;
+      }
+
+      // hide popup and resume game
+      questionPopup.style.display = "none";
+      pausedForQuestion = false;
+      currentQuestion = null;
+
+      // resume drawing/spawning (spawnItems respects pausedForQuestion)
+      gameLoop();
+      updateInfo();
+    }
 
     // --- End / UI helpers ---
     function endGame() {
       const bgMusic = document.getElementById("bgMusic");
-      bgMusic.pause();
-      bgMusic.currentTime = 0;
+      try { bgMusic.pause(); bgMusic.currentTime = 0; } catch(e) {}
       gameRunning = false;
       pausedForQuestion = false;
       if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
@@ -582,7 +564,7 @@ function checkAnswer(selectedIndex) {
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
-        });
+        }).catch(()=>{});
       }
     }
 
@@ -599,8 +581,7 @@ function checkAnswer(selectedIndex) {
       gameRunning = false;
       if (spawnInterval) clearInterval(spawnInterval);
       if (timerInterval) clearInterval(timerInterval);
-      document.getElementById("bgMusic").pause();
-      // window.close() might be blocked by browsers - kept as in your original
+      try { document.getElementById("bgMusic").pause(); } catch(e) {}
       try { window.close(); } catch(e) {}
     }
 
