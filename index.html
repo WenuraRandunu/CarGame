@@ -446,11 +446,11 @@
           updateInfo();
         }, 1000);
       
-        // Question every 5s
+        // Question every 10s
         if (questionInterval) clearInterval(questionInterval);
         questionInterval = setInterval(() => {
           if (gameRunning && !pausedForQuestion) showQuestion();
-        }, 5000);
+        }, 10000);
       }
 
       
