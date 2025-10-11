@@ -439,12 +439,12 @@
           department: userData.department,
           score: score
         };
-        // fetch("https://script.google.com/macros/s/AKfycbytA6dJrsUmyXYvrt7nkXvrAqVAD0CqNL1FxRW9Ar3N6G-KGOlFflCa_CJLa-MuHG8S/exec", {
-        //   method: "POST",
-        //   mode: "no-cors",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(payload)
-        // });
+        fetch("https://script.google.com/macros/s/AKfycbytA6dJrsUmyXYvrt7nkXvrAqVAD0CqNL1FxRW9Ar3N6G-KGOlFflCa_CJLa-MuHG8S/exec", {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
       }
     }
 
@@ -464,26 +464,26 @@
       window.close();
     }
 
-    // function submitUserInfo() {
-    //   // const name = document.getElementById("name").value.trim();
-    //   const empNo = document.getElementById("empNo").value.trim();
-    //   const dept = document.getElementById("dept").value.trim();
+    function submitUserInfo() {
+      // const name = document.getElementById("name").value.trim();
+      const empNo = document.getElementById("empNo").value.trim();
+      const dept = document.getElementById("dept").value.trim();
 
-    //   if (!empNo || !dept) {
-    //     alert("Please fill in all fields before playing the game.");
-    //     return;
-    //   }
-    //   // userData.name = name;
-    //   userData.employeeNumber = empNo;
-    //   userData.department = dept;
-    //   userSubmitted = true;
+      if (!empNo || !dept) {
+        alert("Please fill in all fields before playing the game.");
+        return;
+      }
+      // userData.name = name;
+      userData.employeeNumber = empNo;
+      userData.department = dept;
+      userSubmitted = true;
 
-    //   document.getElementById("userForm").style.display = "none";
-    //   document.getElementById("controls").style.display = "block";
-    //   document.getElementById("infoBar").style.display = "flex";
-    //   // document.getElementById("touchButtons").style.display = "flex"; // COMMENTED
-    //   document.getElementById("gameCanvas").style.display = "block";
-    // }
+      document.getElementById("userForm").style.display = "none";
+      document.getElementById("controls").style.display = "block";
+      document.getElementById("infoBar").style.display = "flex";
+      // document.getElementById("touchButtons").style.display = "flex"; // COMMENTED
+      document.getElementById("gameCanvas").style.display = "block";
+    }
 
     document.getElementById("startBtn").addEventListener("click", startGame);
 
