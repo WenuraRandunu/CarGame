@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Responsive Car Game</title>
+  <title>Responsive Car Game (with Quiz)</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -19,142 +19,53 @@
       overflow: hidden;
     }
 
-    /* COMMENTED OUT touchButtons display block (they are now hidden) */
-    #controls, #infoBar, #touchButtons, #gameCanvas, #popup { display: none; }
+    button { padding: 5px 10px; margin: 3px; font-size: 15px; cursor: pointer; }
 
-    button {
-      padding: 5px 10px;
-      margin: 3px;
-      font-size: 15px;
-      cursor: pointer;
+    #container { display: flex; flex-direction: column; align-items: center; width: 100%; height: 85vh; }
+
+    #infoBar { display: none; justify-content: space-around; width: 100%; max-width: 400px; margin-bottom: 5px; font-size: 14px; }
+    #gameCanvas { display: none; width: 88vw; max-width: 308px; height: auto; aspect-ratio: 3 / 5; background: #333; border: 2px solid white; touch-action: manipulation; }
+
+    #popup { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.8); display: none; align-items: center; justify-content: center; z-index: 999; }
+    #popupContent { background: #222; padding: 20px; border-radius: 10px; text-align: center; color: #fff; }
+
+    #userForm { background: #000; display: flex; flex-direction: column; align-items: center; transform: scale(1.0); transform-origin: top center; margin-top: 20px; padding: 20px; border-radius: 10px; }
+    #userForm input { padding: 10px; font-size: 16px; width: 250px; margin: 5px 0; background-color: lightblue; color: black; border-radius: 8px; border: none; }
+
+    #quizModal {
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 1000;
+      background: rgba(0,0,0,0.85);
     }
-
-    #container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      height: 85vh;
-    }
-
-    #infoBar {
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      max-width: 400px;
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
-
-    #gameCanvas {
-      width: 88vw; /* Increased size by 10% from 80vw */
-      max-width: 308px; /* Increased from 280px (10% larger) */
-      height: auto;
-      aspect-ratio: 3 / 5;
-      background: #333;
-      border: 2px solid white;
-      touch-action: manipulation;
-    }
-
-    /* COMMENTED OUT touch buttons styling */
-    /*
-    #touchButtons {
-      display: flex;
-      justify-content: center;
-      margin-top: 5px;
-    }
-
-    .touch-btn {
-      padding: 12.5px 25px;
-      font-size: 17.5px;
-      margin: 0 10px;
-      background: #2aa0e1;
-      color: black;
-      border: none;
-      border-radius: 5px;
-    }
-    */
-
-    #popup {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-    }
-
-    #popupContent {
-      background: #222;
+    #quizBox {
+      width: 92%;
+      max-width: 460px;
+      background: #121217;
+      border-radius: 12px;
       padding: 20px;
-      border-radius: 10px;
-      text-align: center;
+      text-align: left;
+      color: white;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.7);
     }
-
-    #formTitle {
-      font-size: 28px;
-      font-weight: bold;
-      color: #fff;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-
-    #userForm {
-      background: #000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transform: scale(1.2);
-      transform-origin: top center;
-      margin-top: 50px;
-      padding: 20px;
-      border-radius: 10px;
-    }
-
-    #userForm input {
-      padding: 10px;
-      font-size: 16px;
-      width: 250px;
-      margin: 5px 0;
-      background-color: lightblue;
-      color: black;
+    #quizQuestion { font-size: 18px; margin-bottom: 12px; }
+    .choiceBtn {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
       border-radius: 8px;
-      border: none;
-    }
-
-    #topRightLogo {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 80px;
-      height: auto;
-    }
-
-    #formLogo {
-      width: 100%;
-      max-width: 200px;
-      margin-bottom: 20px;
-    }
-
-    #userForm button {
-      font-size: 1.2em;
-      padding: 10px 20px;
-      margin-top: 15px;
-      cursor: pointer;
-    }
-
-    #gameTitle {
-      position: absolute;
-      top: 20px;
-      right: 110px;
-      font-size: 20px;
-      font-weight: bold;
+      background: #2b2b2f;
       color: #fff;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      font-size: 16px;
     }
+    .choiceBtn:hover { filter: brightness(1.08); }
+    #quizHeader { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    #quizTimerNote { font-size: 13px; opacity: 0.8; }
+    #topRightLogo { position: absolute; top: 10px; right: 10px; width: 80px; height: auto; }
+    #formLogo { width: 100%; max-width: 200px; margin-bottom: 20px; }
+    #formTitle { font-size: 24px; font-weight: bold; color: #fff; margin-bottom: 8px; text-align: center; }
   </style>
 </head>
 <body>
@@ -162,35 +73,12 @@
   <div id="userForm">
     <div id="formTitle">FORMULA 1 ATL GRAND PRIX</div>
     <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/cps.png" id="formLogo" alt="Logo 2" />
-<!--     <input type="text" id="name" placeholder="Name" required />
-    <input type="text" id="empNo" placeholder="Employee Number" required />
-    <input type="text" id="dept" placeholder="Department" required /> -->
-
-    <!-- Name Field: only letters (a-z, A-Z), max length 30 -->
-<!--     <input type="text" id="name" placeholder="Name" required 
-      maxlength="30" 
-      pattern="[A-Za-z\s]+" 
-      title="Only letters are allowed" 
-      inputmode="text" /> -->
-    
-    <!-- Employee Number: only numbers (0-9), exactly 5 digits -->
-    <input type="text" id="empNo" placeholder="Employee Number" required 
-      maxlength="5" 
-      pattern="\d{5}" 
-      title="Enter exactly 5 digits" 
-      inputmode="numeric" />
-    
-    <!-- Department Field: only letters (a-z, A-Z), max length 30 -->
-    <input type="text" id="dept" placeholder="Department" required 
-      maxlength="30" 
-      pattern="[A-Za-z\s]+" 
-      title="Only letters are allowed" 
-      inputmode="text" />
-    
+    <input type="text" id="empNo" placeholder="Employee Number" required maxlength="5" pattern="\d{5}" inputmode="numeric" />
+    <input type="text" id="dept" placeholder="Department" required maxlength="30" pattern="[A-Za-z\s]+" inputmode="text" />
     <button onclick="submitUserInfo()" style="background-color: #5e56dc; color: white; border: none; border-radius: 10px; cursor: pointer;">Play Game</button>
   </div>
 
-  <div id="controls">
+  <div id="controls" style="display:none;">
     <button id="startBtn" style="background-color: #27e830; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Start Game</button>
     <button onclick="closeGame()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close Game</button>
   </div>
@@ -198,24 +86,28 @@
   <div id="infoBar">
     <div id="lives">Lives: 3</div>
     <div id="score">Score: 0</div>
-    <div id="timer">Time: 30s</div>
+    <div id="timer">Time: 60s</div>
   </div>
 
   <canvas id="gameCanvas" width="330" height="550"></canvas>
-
-  <!-- COMMENTED OUT touch buttons -->
-  <!--
-  <div id="touchButtons">
-    <button class="touch-btn" id="leftBtn">⬅️</button>
-    <button class="touch-btn" id="rightBtn">➡️</button>
-  </div>
-  -->
 
   <div id="popup">
     <div id="popupContent">
       <h2>Game Over!</h2>
       <p id="finalScore">Score: 0</p>
       <button onclick="closePopup()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close</button>
+    </div>
+  </div>
+
+  <!-- Quiz Modal -->
+  <div id="quizModal">
+    <div id="quizBox">
+      <div id="quizHeader">
+        <div id="quizTitle">Pop Quiz</div>
+        <div id="quizTimerNote">Answer time doesn't reduce game time</div>
+      </div>
+      <div id="quizQuestion"></div>
+      <div id="quizChoices"></div>
     </div>
   </div>
 
@@ -231,99 +123,79 @@
   </audio>
 
   <script>
-
-    // Input validation script
-    // document.getElementById("name").addEventListener("input", function () {
-    //   this.value = this.value.replace(/[^a-zA-Z]/g, "").slice(0, 30); // Letters only, max 30
-    // });
-
+    // ---- User input sanitizers ----
     document.getElementById("dept").addEventListener("input", function () {
-      this.value = this.value.replace(/[^a-zA-Z]/g, "").slice(0, 30); // Letters only, max 30
+      this.value = this.value.replace(/[^a-zA-Z\s]/g, "").slice(0, 30);
+    });
+    document.getElementById("empNo").addEventListener("input", function () {
+      this.value = this.value.replace(/[^0-9]/g, "").slice(0, 5);
     });
 
-    document.getElementById("empNo").addEventListener("input", function () {
-      this.value = this.value.replace(/[^0-9]/g, "").slice(0, 5); // Numbers only, max 5 digits
-    });
-    
+    // ---- Canvas & game variables ----
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
     const githubBase = "https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets";
-    const player = {
-      lane: 1,
-      y: 440,
-      width: 66, height: 79
-    };
+    const player = { lane: 1, y: 440, width: 66, height: 79 };
     let score = 0, lives = 3, timeLeft = 60;
-    let gameRunning = false, magnetActive = false, magnetTimer = 0;
+    let gameRunning = false;     // true when game active (not game over)
+    let quizActive = false;      // true while quiz modal open (pauses gameplay)
+    let magnetActive = false, magnetTimer = 0;
     let speed = 2.2;
     const items = [];
-    let spawnInterval;
-    let userData = {};
-    let userSubmitted = false;
+    let spawnInterval = null;
+    let playTickInterval = null; // increments active-play seconds and decrements timeLeft
+    let userData = {}, userSubmitted = false;
+    let playSecondsElapsed = 0; // counts active gameplay seconds (does not include quiz time)
+    let nextQuizAt = 10;        // show first quiz when playSecondsElapsed >= 10, then +=10
 
-    const carImage = new Image();
-    carImage.src = githubBase + "/car.png";
+    // images
+    const carImage = new Image(); carImage.src = githubBase + "/car.png";
     const icons = [
       { type: "group", img: githubBase + "/group.png" },
       { type: "safety", img: githubBase + "/safety.png" },
       { type: "sustainability", img: githubBase + "/sustainability.png" },
     ];
     const iconImages = {};
-    icons.forEach(icon => {
-      const img = new Image();
-      img.src = icon.img;
-      iconImages[icon.type] = img;
-    });
+    icons.forEach(icon => { const img = new Image(); img.src = icon.img; iconImages[icon.type] = img; });
 
     const pointWords = ["DDS", "Center\nlines", "Defect\nHandling", "IPS", "UPS", "Kaizen", "5S"];
     const wordBlocks = ["Absenteeism", "Reject", "Rework", "Break\ndown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
 
+    // ---- Simple question bank (multiple choice). Edit/add here ----
+    // Each question: { q: "question text", choices: ["A","B","C","D"], answerIndex: 0 }
+    const questions = [
+      { q: "What does 5S refer to in workplace improvement?", choices: ["Sort","Sustain","Speed","Simplify"], answerIndex: 0 },
+      { q: "What is Kaizen?", choices: ["One-time project","Continuous improvement","Machine type","Inventory method"], answerIndex: 1 },
+      { q: "Which item increases game time when collected?", choices: ["Group icon","Safety icon","Sustainability icon","Point block"], answerIndex: 2 },
+      { q: "Which practice focuses on safety?", choices: ["5S","Kaizen","Safety programs","UPS"], answerIndex: 2 },
+      { q: "What does 'Reject' typically indicate?", choices: ["High quality","Defect","Bonus","Time bonus"], answerIndex: 1 },
+    ];
+
+    // ---- UI update helpers ----
     function updateInfo() {
       document.getElementById("score").innerText = "Score: " + score;
       document.getElementById("lives").innerText = "Lives: " + lives;
       document.getElementById("timer").innerText = "Time: " + timeLeft + "s";
     }
 
-    function resetGameState() {
-      score = 0; lives = 3; timeLeft = 60; speed = 2.1;
-      items.length = 0; magnetActive = false;
-      updateInfo();
-    }
-
+    // ---- Drawing / game visuals ----
     function drawRoad() {
-      ctx.fillStyle = "#222";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = "#fff";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(5, 0); ctx.lineTo(5, canvas.height);
-      ctx.moveTo(canvas.width - 5, 0); ctx.lineTo(canvas.width - 5, canvas.height);
-      ctx.stroke();
-      ctx.strokeStyle = "#bbb";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([10, 10]);
+      ctx.fillStyle = "#222"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(5, canvas.height); ctx.moveTo(canvas.width - 5, 0); ctx.lineTo(canvas.width - 5, canvas.height); ctx.stroke();
+      ctx.strokeStyle = "#bbb"; ctx.lineWidth = 2; ctx.setLineDash([10,10]);
       const laneWidth = (canvas.width - 10) / 3;
-      for (let i = 1; i < 3; i++) {
-        const x = 5 + i * laneWidth;
-        ctx.beginPath();
-        ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
-      }
+      for (let i=1;i<3;i++){ const x = 5 + i * laneWidth; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
       ctx.setLineDash([]);
     }
-
-    function drawPlayer() {
-      ctx.drawImage(carImage, lanes[player.lane], player.y, player.width, player.height);
-    }
-
+    function drawPlayer() { ctx.drawImage(carImage, lanes[player.lane], player.y, player.width, player.height); }
     function drawItems() {
       items.forEach(item => {
         if (item.type === "icon") {
           ctx.drawImage(iconImages[item.iconType], item.x + 5, item.y + 5, 50, 50);
         } else {
-          ctx.font = "bold 12px sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
+          ctx.font = "bold 12px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
           ctx.fillStyle = "#d38bf7";
           const lines = item.word.split("\n");
           const boxX = item.x + 5, boxY = item.y + 5, boxW = 64, boxH = 64;
@@ -336,6 +208,7 @@
       });
     }
 
+    // ---- Movement / collisions ----
     function moveItems() {
       items.forEach(item => {
         item.y += speed;
@@ -364,25 +237,26 @@
             document.getElementById("asdSound").play();
             if (item.iconType === "group") lives++;
             if (item.iconType === "safety") {
-              magnetActive = true;
-              magnetTimer = 300;
+              magnetActive = true; magnetTimer = 300;
             }
-            if (item.iconType === "sustainability") timeLeft += 5;
+            if (item.iconType === "sustainability") {
+              timeLeft += 5; // still works while playSecondsElapsed unaffected
+            }
           }
           items.splice(i, 1);
         }
       }
     }
 
+    // ---- Spawning items (safe to call continuously; spawnItems ignores when quizActive) ----
     function spawnItems() {
+      if (!gameRunning || quizActive) return; // do not spawn while paused for quiz
       const lane = Math.floor(Math.random() * 3);
       const laneX = lanes[lane];
       const lastItem = [...items].reverse().find(i => i.x === laneX);
       if (lastItem && lastItem.y < 130) return;
-
       const rand = Math.random();
       const type = rand < 0.35 ? "word" : rand < 0.75 ? "point" : "icon";
-
       if (type === "icon") {
         const icon = icons[Math.floor(Math.random() * icons.length)].type;
         items.push({ type, x: laneX, y: -70, iconType: icon });
@@ -392,59 +266,86 @@
       }
     }
 
+    // ---- Main game loop (animation) ----
     function gameLoop() {
-      if (!gameRunning) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawRoad(); drawPlayer(); drawItems(); moveItems(); checkCollisions();
-      if (magnetActive) {
-        magnetTimer--;
-        if (magnetTimer <= 0) magnetActive = false;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawRoad();
+      drawPlayer();
+      drawItems();
+      // only update movement & collisions if not quizActive and gameRunning
+      if (gameRunning && !quizActive) {
+        moveItems();
+        checkCollisions();
+        if (magnetActive) {
+          magnetTimer--;
+          if (magnetTimer <= 0) magnetActive = false;
+        }
       }
       updateInfo();
-      requestAnimationFrame(gameLoop);
+      if (gameRunning) requestAnimationFrame(gameLoop);
+    }
+
+    // ---- Game start / reset / end ----
+    function resetGameState() {
+      score = 0; lives = 3; timeLeft = 60; speed = 2.1;
+      items.length = 0; magnetActive = false; magnetTimer = 0;
+      playSecondsElapsed = 0; nextQuizAt = 10;
+      updateInfo();
     }
 
     function startGame() {
-      document.getElementById("bgMusic").play();
+      document.getElementById("bgMusic").play().catch(()=>{});
       resetGameState();
       gameRunning = true;
-      gameLoop();
+      quizActive = false;
+      // clear previous intervals if any
       if (spawnInterval) clearInterval(spawnInterval);
-      spawnInterval = setInterval(spawnItems, 200);
-      const timerInterval = setInterval(() => {
-        if (!gameRunning) return clearInterval(timerInterval);
-        timeLeft--;
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          clearInterval(spawnInterval);
-          endGame();
+      if (playTickInterval) clearInterval(playTickInterval);
+
+      spawnInterval = setInterval(spawnItems, 200); // spawns only when !quizActive
+      // playTickInterval ticks every second but only counts when not quizActive
+      playTickInterval = setInterval(() => {
+        if (!gameRunning) return;
+        if (!quizActive) {
+          // this counts active gameplay seconds
+          playSecondsElapsed++;
+          // trigger quiz when we've reached or passed the scheduled second
+          if (playSecondsElapsed >= nextQuizAt) {
+            showRandomQuiz();
+            nextQuizAt += 10;
+            // DO NOT decrement timeLeft here (quiz pauses countdown)
+          }
+          // only decrement the main countdown while not in quiz
+          timeLeft--;
+          if (timeLeft <= 0) {
+            timeLeft = 0;
+            clearInterval(playTickInterval);
+            clearInterval(spawnInterval);
+            endGame();
+            return;
+          }
         }
         updateInfo();
       }, 1000);
+
+      requestAnimationFrame(gameLoop);
     }
 
     function endGame() {
-      const bgMusic = document.getElementById("bgMusic");
-      bgMusic.pause();
-      bgMusic.currentTime = 0;
+      // Stop background play
+      try { const bgMusic = document.getElementById("bgMusic"); bgMusic.pause(); bgMusic.currentTime = 0; } catch(e){ }
       gameRunning = false;
-      clearInterval(spawnInterval);
+      quizActive = false;
+      if (spawnInterval) clearInterval(spawnInterval);
+      if (playTickInterval) clearInterval(playTickInterval);
       document.getElementById("finalScore").innerText = "Score: " + score;
       document.getElementById("popup").style.display = "flex";
-
+      // POST score if submitted
       if (userSubmitted) {
-        const payload = {
-          // name: userData.name,
-          employeeNumber: userData.employeeNumber,
-          department: userData.department,
-          score: score
-        };
+        const payload = { employeeNumber: userData.employeeNumber, department: userData.department, score: score };
         fetch("https://script.google.com/macros/s/AKfycbytA6dJrsUmyXYvrt7nkXvrAqVAD0CqNL1FxRW9Ar3N6G-KGOlFflCa_CJLa-MuHG8S/exec", {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+          method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
+        }).catch(()=>{});
       }
     }
 
@@ -453,63 +354,95 @@
       resetGameState();
       document.getElementById("controls").style.display = "block";
       document.getElementById("infoBar").style.display = "flex";
-      // document.getElementById("touchButtons").style.display = "flex"; // COMMENTED
       document.getElementById("gameCanvas").style.display = "block";
     }
 
     function closeGame() {
       gameRunning = false;
-      clearInterval(spawnInterval);
-      document.getElementById("bgMusic").pause();
-      window.close();
+      if (spawnInterval) clearInterval(spawnInterval);
+      if (playTickInterval) clearInterval(playTickInterval);
+      try { document.getElementById("bgMusic").pause(); } catch(e){}
+      // Try to close window - might be blocked by browser
+      try { window.close(); } catch(e) { /* ignore */ }
     }
 
-    function submitUserInfo() {
-      // const name = document.getElementById("name").value.trim();
-      const empNo = document.getElementById("empNo").value.trim();
-      const dept = document.getElementById("dept").value.trim();
+    // ---- Quiz system ----
+    const quizModal = document.getElementById("quizModal");
+    const quizQuestionElem = document.getElementById("quizQuestion");
+    const quizChoicesElem = document.getElementById("quizChoices");
 
-      if (!empNo || !dept) {
-        alert("Please fill in all fields before playing the game.");
+    function showRandomQuiz() {
+      if (!gameRunning) return;
+      // Pause game logic but keep game state in memory
+      quizActive = true;
+      // Pause music
+      try { document.getElementById("bgMusic").pause(); } catch(e){}
+      // pick a random question
+      const q = questions[Math.floor(Math.random() * questions.length)];
+      // render modal
+      quizQuestionElem.innerText = q.q;
+      quizChoicesElem.innerHTML = "";
+      q.choices.forEach((ch, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "choiceBtn";
+        btn.innerText = String.fromCharCode(65 + idx) + ". " + ch;
+        btn.onclick = () => handleQuizAnswer(q, idx);
+        quizChoicesElem.appendChild(btn);
+      });
+      quizModal.style.display = "flex";
+    }
+
+    function handleQuizAnswer(q, chosenIdx) {
+      // correct?
+      const correct = chosenIdx === q.answerIndex;
+      // hide modal
+      quizModal.style.display = "none";
+      if (!correct) {
+        // wrong answer => game over immediately
+        endGame();
         return;
+      } else {
+        // correct answer => resume game
+        quizActive = false;
+        try { document.getElementById("bgMusic").play().catch(()=>{}); } catch(e){}
+        // continue gameLoop (if gameRunning true, gameLoop keeps animating)
       }
-      // userData.name = name;
-      userData.employeeNumber = empNo;
-      userData.department = dept;
-      userSubmitted = true;
-
-      document.getElementById("userForm").style.display = "none";
-      document.getElementById("controls").style.display = "block";
-      document.getElementById("infoBar").style.display = "flex";
-      // document.getElementById("touchButtons").style.display = "flex"; // COMMENTED
-      document.getElementById("gameCanvas").style.display = "block";
     }
 
+    // ---- Input / controls ----
     document.getElementById("startBtn").addEventListener("click", startGame);
-
-    // COMMENTED OUT touch button events
-    /*
-    document.getElementById("leftBtn").addEventListener("click", () => {
-      if (player.lane > 0) player.lane--;
-    });
-    document.getElementById("rightBtn").addEventListener("click", () => {
-      if (player.lane < 2) player.lane++;
-    });
-    */
-
     document.addEventListener("keydown", e => {
+      if (!gameRunning || quizActive) return;
       if (e.key === "ArrowLeft" && player.lane > 0) player.lane--;
       if (e.key === "ArrowRight" && player.lane < 2) player.lane++;
     });
 
     canvas.addEventListener("touchstart", e => {
+      if (!gameRunning || quizActive) return;
       const touchX = e.touches[0].clientX;
-      if (touchX < window.innerWidth / 2 && player.lane > 0) {
-        player.lane--;
-      } else if (touchX > window.innerWidth / 2 && player.lane < 2) {
-        player.lane++;
-      }
+      if (touchX < window.innerWidth / 2 && player.lane > 0) player.lane--;
+      else if (touchX > window.innerWidth / 2 && player.lane < 2) player.lane++;
     });
+
+    // ---- User form submission ----
+    function submitUserInfo() {
+      const empNo = document.getElementById("empNo").value.trim();
+      const dept = document.getElementById("dept").value.trim();
+      if (!empNo || !dept) { alert("Please fill in all fields before playing the game."); return; }
+      userData.employeeNumber = empNo; userData.department = dept; userSubmitted = true;
+      document.getElementById("userForm").style.display = "none";
+      document.getElementById("controls").style.display = "block";
+      document.getElementById("infoBar").style.display = "flex";
+      document.getElementById("gameCanvas").style.display = "block";
+      document.getElementById("score").innerText = "Score: " + score;
+      document.getElementById("lives").innerText = "Lives: " + lives;
+      document.getElementById("timer").innerText = "Time: " + timeLeft + "s";
+    }
+
+    // ---- initialization UI ----
+    document.getElementById("infoBar").style.display = "none";
+    document.getElementById("gameCanvas").style.display = "none";
+    updateInfo();
   </script>
 </body>
 </html>
