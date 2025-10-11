@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <!-- Prevents zooming , user-scalable=no-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Responsive Car Game</title>
   <style>
     * { box-sizing: border-box; }
@@ -18,13 +18,17 @@
       flex-direction: column;
       overflow: hidden;
     }
+
+    /* COMMENTED OUT touchButtons display block (they are now hidden) */
     #controls, #infoBar, #touchButtons, #gameCanvas, #popup { display: none; }
+
     button {
       padding: 5px 10px;
       margin: 3px;
       font-size: 15px;
       cursor: pointer;
     }
+
     #container {
       display: flex;
       flex-direction: column;
@@ -32,6 +36,7 @@
       width: 100%;
       height: 85vh;
     }
+
     #infoBar {
       display: flex;
       justify-content: space-around;
@@ -40,29 +45,36 @@
       margin-bottom: 5px;
       font-size: 14px;
     }
+
     #gameCanvas {
-      width: 80vw;
-      max-width: 280px;
+      width: 88vw; /* Increased size by 10% from 80vw */
+      max-width: 308px; /* Increased from 280px (10% larger) */
       height: auto;
       aspect-ratio: 3 / 5;
       background: #333;
       border: 2px solid white;
-      touch-action: manipulation; /* Prevent zooming and panning */
+      touch-action: manipulation;
     }
+
+    /* COMMENTED OUT touch buttons styling */
+    /*
     #touchButtons {
       display: flex;
       justify-content: center;
       margin-top: 5px;
     }
+
     .touch-btn {
       padding: 12.5px 25px;
       font-size: 17.5px;
       margin: 0 10px;
-      background: #2aa0e1; /* Changed from #444 to light blue */
+      background: #2aa0e1;
       color: black;
       border: none;
       border-radius: 5px;
     }
+    */
+
     #popup {
       position: fixed;
       top: 0;
@@ -75,12 +87,14 @@
       justify-content: center;
       z-index: 999;
     }
+
     #popupContent {
       background: #222;
       padding: 20px;
       border-radius: 10px;
       text-align: center;
     }
+
     #formTitle {
       font-size: 28px;
       font-weight: bold;
@@ -88,6 +102,7 @@
       margin-bottom: 15px;
       text-align: center;
     }
+
     #userForm {
       background: #000;
       display: flex;
@@ -99,6 +114,7 @@
       padding: 20px;
       border-radius: 10px;
     }
+
     #userForm input {
       padding: 10px;
       font-size: 16px;
@@ -109,6 +125,7 @@
       border-radius: 8px;
       border: none;
     }
+
     #topRightLogo {
       position: absolute;
       top: 10px;
@@ -116,17 +133,20 @@
       width: 80px;
       height: auto;
     }
+
     #formLogo {
       width: 100%;
       max-width: 200px;
       margin-bottom: 20px;
     }
+
     #userForm button {
       font-size: 1.2em;
       padding: 10px 20px;
       margin-top: 15px;
       cursor: pointer;
     }
+
     #gameTitle {
       position: absolute;
       top: 20px;
@@ -138,32 +158,59 @@
   </style>
 </head>
 <body>
-    <!-- Top-right logo -->
-  <img src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/aps.png" id="topRightLogo" alt="Logo" />
-  <!-- User form -->
+  <img src="https://raw.githubusercontent.com/APS-GAMES/CarGameTabless/main/assets/aps.png" id="topRightLogo" alt="Logo" />
   <div id="userForm">
-    <div id="formTitle">Team Drive 2X CPS</div>
-    <img src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/cps.png" id="formLogo" alt="Logo 2" />
-    <input type="text" id="name" placeholder="Name" required />
+    <div id="formTitle">FORMULA 1 ATL GRAND PRIX</div>
+    <img src="https://raw.githubusercontent.com/APS-GAMES/CarGameTabless/main/assets/cps.png" id="formLogo" alt="Logo 2" />
+<!--     <input type="text" id="name" placeholder="Name" required />
     <input type="text" id="empNo" placeholder="Employee Number" required />
-    <input type="text" id="dept" placeholder="Department" required />
-<!--     <button onclick="submitUserInfo()" style="bg:#5e56dc">Play Game</button> -->
+    <input type="text" id="dept" placeholder="Department" required /> -->
+
+    <!-- Name Field: only letters (a-z, A-Z), max length 30 -->
+<!--     <input type="text" id="name" placeholder="Name" required 
+      maxlength="30" 
+      pattern="[A-Za-z\s]+" 
+      title="Only letters are allowed" 
+      inputmode="text" /> -->
+    
+    <!-- Employee Number: only numbers (0-9), exactly 5 digits -->
+    <input type="text" id="empNo" placeholder="Employee Number" required 
+      maxlength="5" 
+      pattern="\d{5}" 
+      title="Enter exactly 5 digits" 
+      inputmode="numeric" />
+    
+    <!-- Department Field: only letters (a-z, A-Z), max length 30 -->
+    <input type="text" id="dept" placeholder="Department" required 
+      maxlength="30" 
+      pattern="[A-Za-z\s]+" 
+      title="Only letters are allowed" 
+      inputmode="text" />
+    
     <button onclick="submitUserInfo()" style="background-color: #5e56dc; color: white; border: none; border-radius: 10px; cursor: pointer;">Play Game</button>
   </div>
+
   <div id="controls">
     <button id="startBtn" style="background-color: #27e830; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Start Game</button>
     <button onclick="closeGame()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close Game</button>
   </div>
+
   <div id="infoBar">
     <div id="lives">Lives: 3</div>
     <div id="score">Score: 0</div>
     <div id="timer">Time: 30s</div>
   </div>
+
   <canvas id="gameCanvas" width="330" height="550"></canvas>
+
+  <!-- COMMENTED OUT touch buttons -->
+  <!--
   <div id="touchButtons">
     <button class="touch-btn" id="leftBtn">⬅️</button>
     <button class="touch-btn" id="rightBtn">➡️</button>
   </div>
+  -->
+
   <div id="popup">
     <div id="popupContent">
       <h2>Game Over!</h2>
@@ -171,30 +218,45 @@
       <button onclick="closePopup()" style="background-color: #f14e2a; color: #09090a; border: none; border-radius: 10px; cursor: pointer;">Close</button>
     </div>
   </div>
+
   <!-- Audio -->
   <audio id="bgMusic" loop autoplay>
-    <source src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/bg.mp3" type="audio/mpeg">
+    <source src="https://raw.githubusercontent.com/APS-GAMES/CarGameTabless/main/assets/bg.mp3" type="audio/mpeg">
   </audio>
   <audio id="blockSound">
-    <source src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/block.mp3" type="audio/mpeg">
+    <source src="https://raw.githubusercontent.com/APS-GAMES/CarGameTabless/main/assets/block.mp3" type="audio/mpeg">
   </audio>
   <audio id="asdSound">
-    <source src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/asd.mp3" type="audio/mpeg">
+    <source src="https://raw.githubusercontent.com/APS-GAMES/CarGameTabless/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
 
   <script>
+
+    // Input validation script
+    // document.getElementById("name").addEventListener("input", function () {
+    //   this.value = this.value.replace(/[^a-zA-Z]/g, "").slice(0, 30); // Letters only, max 30
+    // });
+
+    document.getElementById("dept").addEventListener("input", function () {
+      this.value = this.value.replace(/[^a-zA-Z]/g, "").slice(0, 30); // Letters only, max 30
+    });
+
+    document.getElementById("empNo").addEventListener("input", function () {
+      this.value = this.value.replace(/[^0-9]/g, "").slice(0, 5); // Numbers only, max 5 digits
+    });
+    
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
-    const githubBase = "https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets";
+    const githubBase = "https://raw.githubusercontent.com/APS-GAMES/CarGameTabless/main/assets";
     const player = {
       lane: 1,
       y: 440,
       width: 66, height: 79
     };
-    let score = 0, lives = 3, timeLeft = 60; // Changed from 30 to 60
+    let score = 0, lives = 3, timeLeft = 60;
     let gameRunning = false, magnetActive = false, magnetTimer = 0;
-    let speed = 2.2; // Increased speed from 1.7 to 2.2
+    let speed = 2.2;
     const items = [];
     let spawnInterval;
     let userData = {};
@@ -224,7 +286,7 @@
     }
 
     function resetGameState() {
-      score = 0; lives = 3; timeLeft = 60; speed = 2.1; // Updated here
+      score = 0; lives = 3; timeLeft = 60; speed = 2.1;
       items.length = 0; magnetActive = false;
       updateInfo();
     }
@@ -319,7 +381,7 @@
       if (lastItem && lastItem.y < 130) return;
 
       const rand = Math.random();
-      const type = rand < 0.35 ? "word" : rand < 0.75 ? "point" : "icon"; // Adjusted spawn rates: icons +5%, words -5%
+      const type = rand < 0.35 ? "word" : rand < 0.75 ? "point" : "icon";
 
       if (type === "icon") {
         const icon = icons[Math.floor(Math.random() * icons.length)].type;
@@ -372,12 +434,12 @@
 
       if (userSubmitted) {
         const payload = {
-          name: userData.name,
+          // name: userData.name,
           employeeNumber: userData.employeeNumber,
           department: userData.department,
           score: score
         };
-        fetch("https://script.google.com/macros/s/AKfycbzy6TdBiKnOByTyRSxIaSN1cLYKWN_5lpqrw4FQNWx4GVr4NKM8f82fHFgaXZ_LAEfv/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbytA6dJrsUmyXYvrt7nkXvrAqVAD0CqNL1FxRW9Ar3N6G-KGOlFflCa_CJLa-MuHG8S/exec", {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
@@ -391,7 +453,7 @@
       resetGameState();
       document.getElementById("controls").style.display = "block";
       document.getElementById("infoBar").style.display = "flex";
-      document.getElementById("touchButtons").style.display = "flex";
+      // document.getElementById("touchButtons").style.display = "flex"; // COMMENTED
       document.getElementById("gameCanvas").style.display = "block";
     }
 
@@ -403,15 +465,15 @@
     }
 
     function submitUserInfo() {
-      const name = document.getElementById("name").value.trim();
+      // const name = document.getElementById("name").value.trim();
       const empNo = document.getElementById("empNo").value.trim();
       const dept = document.getElementById("dept").value.trim();
 
-      if (!name || !empNo || !dept) {
+      if (!empNo || !dept) {
         alert("Please fill in all fields before playing the game.");
         return;
       }
-      userData.name = name;
+      // userData.name = name;
       userData.employeeNumber = empNo;
       userData.department = dept;
       userSubmitted = true;
@@ -419,22 +481,34 @@
       document.getElementById("userForm").style.display = "none";
       document.getElementById("controls").style.display = "block";
       document.getElementById("infoBar").style.display = "flex";
-      document.getElementById("touchButtons").style.display = "flex";
+      // document.getElementById("touchButtons").style.display = "flex"; // COMMENTED
       document.getElementById("gameCanvas").style.display = "block";
     }
 
     document.getElementById("startBtn").addEventListener("click", startGame);
-    document.getElementById("leftBtn").addEventListener("click", () => { if (player.lane > 0) player.lane--; });
-    document.getElementById("rightBtn").addEventListener("click", () => { if (player.lane < 2) player.lane++; });
+
+    // COMMENTED OUT touch button events
+    /*
+    document.getElementById("leftBtn").addEventListener("click", () => {
+      if (player.lane > 0) player.lane--;
+    });
+    document.getElementById("rightBtn").addEventListener("click", () => {
+      if (player.lane < 2) player.lane++;
+    });
+    */
+
     document.addEventListener("keydown", e => {
       if (e.key === "ArrowLeft" && player.lane > 0) player.lane--;
       if (e.key === "ArrowRight" && player.lane < 2) player.lane++;
     });
+
     canvas.addEventListener("touchstart", e => {
       const touchX = e.touches[0].clientX;
-      const mid = window.innerWidth / 2;
-      if (touchX < mid && player.lane > 0) player.lane--;
-      else if (touchX >= mid && player.lane < 2) player.lane++;
+      if (touchX < window.innerWidth / 2 && player.lane > 0) {
+        player.lane--;
+      } else if (touchX > window.innerWidth / 2 && player.lane < 2) {
+        player.lane++;
+      }
     });
   </script>
 </body>
