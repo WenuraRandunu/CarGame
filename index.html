@@ -135,60 +135,19 @@
       font-weight: bold;
       color: #fff;
     }
-
-    /* Question popup styles */
-    #questionPopup {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    #questionBox {
-      background:#222; padding:20px; border-radius:10px; text-align:center; width:80%; max-width:400px;
-    }
-    #questionBox button {
-      display:block;
-      margin:10px auto;
-      padding:10px 20px;
-      cursor:pointer;
-      border-radius:8px;
-      border: none;
-      background: #5e56dc;
-      color: white;
-    }
   </style>
 </head>
 <body>
     <!-- Top-right logo -->
-  <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/aps.png" id="topRightLogo" alt="Logo" />
+  <img src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/aps.png" id="topRightLogo" alt="Logo" />
   <!-- User form -->
   <div id="userForm">
     <div id="formTitle">Team Drive 2X CPS</div>
-    <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/cps.png" id="formLogo" alt="Logo 2" />
-
-    <input type="text" id="name" placeholder="Name" required 
-      maxlength="30" 
-      pattern="[A-Za-z\s]+" 
-      title="Only letters are allowed" 
-      inputmode="text" />
-    
-    <!-- Employee Number: only numbers (0-9), exactly 6 digits -->
-    <input type="text" id="empNo" placeholder="Employee Number" required 
-      maxlength="6" 
-      pattern="\d{6}" 
-      title="Enter exactly 6 digits" 
-      inputmode="numeric" />
-    
-    <input type="text" id="dept" placeholder="Department" required 
-      maxlength="30" 
-      pattern="[A-Za-z\s]+" 
-      title="Only letters are allowed" 
-      inputmode="text" />
-    
+    <img src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/cps.png" id="formLogo" alt="Logo 2" />
+    <input type="text" id="name" placeholder="Name" required />
+    <input type="text" id="empNo" placeholder="Employee Number" required />
+    <input type="text" id="dept" placeholder="Department" required />
+<!--     <button onclick="submitUserInfo()" style="bg:#5e56dc">Play Game</button> -->
     <button onclick="submitUserInfo()" style="background-color: #5e56dc; color: white; border: none; border-radius: 10px; cursor: pointer;">Play Game</button>
   </div>
   <div id="controls">
@@ -213,47 +172,36 @@
     </div>
   </div>
   <!-- Audio -->
-  <audio id="bgMusic" loop>
-    <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/bg.mp3" type="audio/mpeg">
+  <audio id="bgMusic" loop autoplay>
+    <source src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/bg.mp3" type="audio/mpeg">
   </audio>
   <audio id="blockSound">
-    <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/block.mp3" type="audio/mpeg">
+    <source src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/block.mp3" type="audio/mpeg">
   </audio>
   <audio id="asdSound">
-    <source src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/asd.mp3" type="audio/mpeg">
+    <source src="https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets/asd.mp3" type="audio/mpeg">
   </audio>
 
-  <div id="questionPopup">
-    <div id="questionBox">
-      <h2 id="questionText">Question goes here</h2>
-      <div id="answers"></div>
-    </div>
-  </div>
-
   <script>
-    // --- Input validation ---
-    document.getElementById("name").addEventListener("input", function () {
-      this.value = this.value.replace(/[^a-zA-Z\s]/g, "").slice(0, 30); // Letters only, max 30
-    });
-
-    document.getElementById("dept").addEventListener("input", function () {
-      this.value = this.value.replace(/[^a-zA-Z\s]/g, "").slice(0, 30); // Letters only, max 30
-    });
-
-    document.getElementById("empNo").addEventListener("input", function () {
-      this.value = this.value.replace(/[^0-9]/g, "").slice(0, 6); // Numbers only, max 6 digits
-    });
-
-    // --- Core game variables ---
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const lanes = [35, 135, 235];
-    const githubBase = "https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets";
-    const player = { lane: 1, y: 440, width: 66, height: 79 };
+    const githubBase = "https://raw.githubusercontent.com/APS-GAMES/CarGame/main/assets";
+    const player = {
+      lane: 1,
+      y: 440,
+      width: 66, height: 79
+    };
+    let score = 0, lives = 3, timeLeft = 60; // Changed from 30 to 60
+    let gameRunning = false, magnetActive = false, magnetTimer = 0;
+    let speed = 2.2; // Increased speed from 1.7 to 2.2
+    const items = [];
+    let spawnInterval;
+    let userData = {};
+    let userSubmitted = false;
 
     const carImage = new Image();
     carImage.src = githubBase + "/car.png";
-
     const icons = [
       { type: "group", img: githubBase + "/group.png" },
       { type: "safety", img: githubBase + "/safety.png" },
@@ -269,41 +217,6 @@
     const pointWords = ["DDS", "Center\nlines", "Defect\nHandling", "IPS", "UPS", "Kaizen", "5S"];
     const wordBlocks = ["Absenteeism", "Reject", "Rework", "Break\ndown", "Powercut", "Cut\npart\ndelay", "System\ndown", "Forklift\ndelay", "Scraps", "Size\nchanges", "Style\nchanges"];
 
-    let score = 0, lives = 3, timeLeft = 60;
-    let gameRunning = false, magnetActive = false, magnetTimer = 0;
-    let speed = 2.2;
-    const items = [];
-    let spawnInterval = null;
-    let timerInterval = null;
-    let userData = {};
-    let userSubmitted = false;
-
-    // nextQuestionIn counts gameplay seconds until next question (10s)
-    let nextQuestionIn = 10;
-    let pausedForQuestion = false;
-    let currentQuestion = null; // current displayed question object
-    let currentQuestionIndex = 0;
-
-    // --- Questions bank ---
-    const questions = [
-      {
-        q: "What does 5S stand for?",
-        answers: ["Sort, Set, Shine, Standardize, Sustain", "Speed, Safety, System, Save, Secure"],
-        correct: 0
-      },
-      {
-        q: "What is Kaizen?",
-        answers: ["Continuous Improvement", "Quality Inspection"],
-        correct: 0
-      },
-      {
-        q: "What does UPS stand for?",
-        answers: ["Uninterrupted Power Supply", "Universal Product System"],
-        correct: 0
-      }
-    ];
-
-    // --- UI update ---
     function updateInfo() {
       document.getElementById("score").innerText = "Score: " + score;
       document.getElementById("lives").innerText = "Lives: " + lives;
@@ -311,16 +224,11 @@
     }
 
     function resetGameState() {
-      score = 0; lives = 3; timeLeft = 60; speed = 2.1;
-      items.length = 0; magnetActive = false; magnetTimer = 0;
-      nextQuestionIn = 10;
-      pausedForQuestion = false;
-      currentQuestion = null;
-      currentQuestionIndex = 0;
+      score = 0; lives = 3; timeLeft = 60; speed = 2.1; // Updated here
+      items.length = 0; magnetActive = false;
       updateInfo();
     }
 
-    // --- Drawing ---
     function drawRoad() {
       ctx.fillStyle = "#222";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -366,7 +274,6 @@
       });
     }
 
-    // --- Movement & collisions ---
     function moveItems() {
       items.forEach(item => {
         item.y += speed;
@@ -386,13 +293,13 @@
         if (inLane && hit) {
           if (item.type === "word") {
             lives--;
-            try { document.getElementById("blockSound").play(); } catch(e) {}
+            document.getElementById("blockSound").play();
             if (lives <= 0) return endGame();
           } else if (item.type === "point") {
             score += 5;
-            try { document.getElementById("asdSound").play(); } catch(e) {}
+            document.getElementById("asdSound").play();
           } else if (item.type === "icon") {
-            try { document.getElementById("asdSound").play(); } catch(e) {}
+            document.getElementById("asdSound").play();
             if (item.iconType === "group") lives++;
             if (item.iconType === "safety") {
               magnetActive = true;
@@ -405,16 +312,14 @@
       }
     }
 
-    // --- Spawning items (stops while paused) ---
     function spawnItems() {
-      if (!gameRunning || pausedForQuestion) return;
       const lane = Math.floor(Math.random() * 3);
       const laneX = lanes[lane];
       const lastItem = [...items].reverse().find(i => i.x === laneX);
       if (lastItem && lastItem.y < 130) return;
 
       const rand = Math.random();
-      const type = rand < 0.35 ? "word" : rand < 0.75 ? "point" : "icon";
+      const type = rand < 0.35 ? "word" : rand < 0.75 ? "point" : "icon"; // Adjusted spawn rates: icons +5%, words -5%
 
       if (type === "icon") {
         const icon = icons[Math.floor(Math.random() * icons.length)].type;
@@ -425,129 +330,43 @@
       }
     }
 
-    // --- Game loop (keeps drawing but freezes movement while paused) ---
     function gameLoop() {
       if (!gameRunning) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawRoad();
-      drawPlayer();
-      drawItems();
-
-      if (!pausedForQuestion) {
-        moveItems();
-        checkCollisions();
-        if (magnetActive) {
-          magnetTimer--;
-          if (magnetTimer <= 0) magnetActive = false;
-        }
+      drawRoad(); drawPlayer(); drawItems(); moveItems(); checkCollisions();
+      if (magnetActive) {
+        magnetTimer--;
+        if (magnetTimer <= 0) magnetActive = false;
       }
-
       updateInfo();
-
-      if (gameRunning) requestAnimationFrame(gameLoop);
+      requestAnimationFrame(gameLoop);
     }
 
-    // --- Start game: timer counts down only when not paused; nextQuestionIn counts gameplay seconds ---
     function startGame() {
-      try { document.getElementById("bgMusic").play(); } catch(e) {}
+      document.getElementById("bgMusic").play();
       resetGameState();
       gameRunning = true;
       gameLoop();
-
       if (spawnInterval) clearInterval(spawnInterval);
       spawnInterval = setInterval(spawnItems, 200);
-
-      // Clear any existing timer
-      if (timerInterval) clearInterval(timerInterval);
-
-      timerInterval = setInterval(() => {
-        if (!gameRunning) {
-          clearInterval(timerInterval);
-          return;
-        }
-
-        if (!pausedForQuestion) {
-          timeLeft--;
-          nextQuestionIn--;
-          // When nextQuestionIn reaches zero -> show question
-          if (nextQuestionIn <= 0) {
-            showQuestion();
-          }
-        }
-
+      const timerInterval = setInterval(() => {
+        if (!gameRunning) return clearInterval(timerInterval);
+        timeLeft--;
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
           clearInterval(spawnInterval);
           endGame();
         }
-
         updateInfo();
       }, 1000);
     }
 
-    // --- Question popup behavior ---
-    const questionPopup = document.getElementById("questionPopup");
-    const questionTextEl = document.getElementById("questionText");
-    const answersEl = document.getElementById("answers");
-
-    function showQuestion() {
-      if (!gameRunning) return;
-      // pause gameplay & spawning; DO NOT reset nextQuestionIn here (reset after answer)
-      pausedForQuestion = true;
-
-      // pick a random question (or use round-robin)
-      currentQuestionIndex = Math.floor(Math.random() * questions.length);
-      currentQuestion = questions[currentQuestionIndex];
-
-      // populate popup
-      questionTextEl.innerText = currentQuestion.q;
-      answersEl.innerHTML = "";
-      currentQuestion.answers.forEach((ans, idx) => {
-        const btn = document.createElement("button");
-        btn.innerText = ans;
-        btn.onclick = () => checkQuestionAnswer(idx);
-        answersEl.appendChild(btn);
-      });
-
-      // show popup
-      questionPopup.style.display = "flex";
-    }
-
-    function checkQuestionAnswer(selectedIndex) {
-      if (!currentQuestion) return;
-
-      if (selectedIndex === currentQuestion.correct) {
-        // correct: reward and resume
-        score += 10;
-        // reset counter so player gets another 10s of gameplay
-        nextQuestionIn = 10;
-      } else {
-        // wrong: immediate game over (you can change to penalty instead)
-        // Hide popup briefly then end
-        questionPopup.style.display = "none";
-        currentQuestion = null;
-        endGame();
-        return;
-      }
-
-      // hide popup and resume game
-      questionPopup.style.display = "none";
-      pausedForQuestion = false;
-      currentQuestion = null;
-
-      // resume drawing/spawning (spawnItems respects pausedForQuestion)
-      gameLoop();
-      updateInfo();
-    }
-
-    // --- End / UI helpers ---
     function endGame() {
       const bgMusic = document.getElementById("bgMusic");
-      try { bgMusic.pause(); bgMusic.currentTime = 0; } catch(e) {}
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
       gameRunning = false;
-      pausedForQuestion = false;
-      if (spawnInterval) { clearInterval(spawnInterval); spawnInterval = null; }
-      if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+      clearInterval(spawnInterval);
       document.getElementById("finalScore").innerText = "Score: " + score;
       document.getElementById("popup").style.display = "flex";
 
@@ -558,13 +377,12 @@
           department: userData.department,
           score: score
         };
-        // no-cors endpoint; keep as-is
-        fetch("https://script.google.com/macros/s/AKfycbzt-L7o1H9JvH8Z0A_2qkJxQ94kbBoGMS_3_C54UeHzfnGsIY_Hbz0dQ2jOT4WVC7SUkQ/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbzy6TdBiKnOByTyRSxIaSN1cLYKWN_5lpqrw4FQNWx4GVr4NKM8f82fHFgaXZ_LAEfv/exec", {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
-        }).catch(()=>{});
+        });
       }
     }
 
@@ -579,13 +397,11 @@
 
     function closeGame() {
       gameRunning = false;
-      if (spawnInterval) clearInterval(spawnInterval);
-      if (timerInterval) clearInterval(timerInterval);
-      try { document.getElementById("bgMusic").pause(); } catch(e) {}
-      try { window.close(); } catch(e) {}
+      clearInterval(spawnInterval);
+      document.getElementById("bgMusic").pause();
+      window.close();
     }
 
-    // --- User form submit ---
     function submitUserInfo() {
       const name = document.getElementById("name").value.trim();
       const empNo = document.getElementById("empNo").value.trim();
@@ -607,7 +423,6 @@
       document.getElementById("gameCanvas").style.display = "block";
     }
 
-    // --- Input & touch controls ---
     document.getElementById("startBtn").addEventListener("click", startGame);
     document.getElementById("leftBtn").addEventListener("click", () => { if (player.lane > 0) player.lane--; });
     document.getElementById("rightBtn").addEventListener("click", () => { if (player.lane < 2) player.lane++; });
@@ -621,14 +436,6 @@
       if (touchX < mid && player.lane > 0) player.lane--;
       else if (touchX >= mid && player.lane < 2) player.lane++;
     });
-
-    // expose some vars for debugging if needed
-    window._debug = {
-      startGame, endGame, spawnItems, questions
-    };
-
-    // initial UI state
-    updateInfo();
   </script>
 </body>
 </html>
