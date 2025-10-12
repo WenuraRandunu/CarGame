@@ -165,12 +165,58 @@
     // ---- Simple question bank (multiple choice). Edit/add here ----
     // Each question: { q: "question text", choices: ["A","B","C","D"], answerIndex: 0 }
     const questions = [
-      { q: "What does 5S refer to in workplace improvement?", choices: ["Sort","Sustain","Speed","Simplify"], answerIndex: 0 },
-      { q: "What is Kaizen?", choices: ["One-time project","Continuous improvement","Machine type","Inventory method"], answerIndex: 1 },
-      { q: "Which item increases game time when collected?", choices: ["Group icon","Safety icon","Sustainability icon","Point block"], answerIndex: 2 },
-      { q: "Which practice focuses on safety?", choices: ["5S","Kaizen","Safety programs","UPS"], answerIndex: 2 },
-      { q: "What does 'Reject' typically indicate?", choices: ["High quality","Defect","Bonus","Time bonus"], answerIndex: 1 },
+      {
+        q: "APS Vision “Power of 0 & 100” කියන්නේ කුමක්ද?",
+        choices: [
+          "0 wastes & 100% employee engagement",
+          "0 defects & 100% efficiency",
+          "0 production & 100% speed",
+          "0 cost & 100% profit"
+        ],
+        answerIndex: 0
+      },
+      {
+        q: "5S ක්‍රමවේදයේ Seiri අර්ථය කුමක්ද?",
+        choices: [
+          "සෑම දේම තබා ගැනීම",
+          "අනවශ්‍ය දේ ඉවත් කිරීම",
+          "වස්තු සෝදනවා",
+          "ප්‍රතිපත්ති සකස් කිරීම"
+        ],
+        answerIndex: 1
+      },
+      {
+        q: "Lean ක්‍රමවේදයේ ප්‍රධාන අරමුණ කුමක්ද?",
+        choices: [
+          "වැඩිම නිෂ්පාදන කර ගැනීම",
+          "වෙනසක් නොවන ක්‍රියාවලීන් ඉවත් කර, වටිනාකම වැඩි කිරීම",
+          "සේවකයින් වැඩි කිරීම්",
+          "මූල්‍ය ආදායම වැඩි කිරීම"
+        ],
+        answerIndex: 1
+      },
+      {
+        q: "Kaizen කියන්නේ කුමක්ද?",
+        choices: [
+          "එක් වතාවක් විශාල වෙනසක් කිරීම",
+          "සේවකයින්ගේ නිශ්චිත පුහුණුව",
+          "සැලසුම් සහ ක්‍රියාවලි වඩාත් හොඳ කිරීමේ ස්වයංක්‍රීය අඛණ්ඩ උත්සාහ",
+          "නිෂ්පාදන වියදම් අඩු කිරීම"
+        ],
+        answerIndex: 2
+      },
+      {
+        q: "APS ක්‍රමවේදය භාවිතා කරන ප්‍රධාන වාසි මොනවාද?",
+        choices: [
+          "කාර්ය මණ්ඩලය වැඩි කිරීම",
+          "වියදම් අඩු කිරීම, කාර්යක්ෂමතාව වැඩි කිරීම, වටිනාකම වැඩි කිරීම",
+          "නිෂ්පාදන ගුණාත්මක බව අඩු කිරීම",
+          "අවශ්‍යතාවය නොසලකා හැරීම"
+        ],
+        answerIndex: 1
+      }
     ];
+
 
     // ---- UI update helpers ----
     function updateInfo() {
