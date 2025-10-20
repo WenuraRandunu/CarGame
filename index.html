@@ -389,7 +389,7 @@
       // POST score if submitted
       if (userSubmitted) {
         const payload = { employeeNumber: userData.employeeNumber, department: userData.department, score: score };
-        fetch("https://script.google.com/macros/s/AKfycbytA6dJrsUmyXYvrt7nkXvrAqVAD0CqNL1FxRW9Ar3N6G-KGOlFflCa_CJLa-MuHG8S/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbzt-L7o1H9JvH8Z0A_2qkJxQ94kbBoGMS_3_C54UeHzfnGsIY_Hbz0dQ2jOT4WVC7SUkQ/exec", {
           method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
         }).catch(()=>{});
       }
