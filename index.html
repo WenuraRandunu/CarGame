@@ -147,7 +147,7 @@
     let playTickInterval = null; // increments active-play seconds and decrements timeLeft
     let userData = {}, userSubmitted = false;
     let playSecondsElapsed = 0; // counts active gameplay seconds (does not include quiz time)
-    let nextQuizAt = 10;        // show first quiz when playSecondsElapsed >= 10, then +=10
+    let nextQuizAt = 15;        // show first quiz when playSecondsElapsed >= 15, then +=15
 
     // images
     const carImage = new Image(); carImage.src = githubBase + "/car.png";
@@ -454,7 +454,7 @@
     function resetGameState() {
       score = 0; lives = 3; timeLeft = 60; speed = 2.1;
       items.length = 0; magnetActive = false; magnetTimer = 0;
-      playSecondsElapsed = 0; nextQuizAt = 10;
+      playSecondsElapsed = 0; nextQuizAt = 15;
       updateInfo();
     }
 
@@ -477,7 +477,7 @@
           // trigger quiz when we've reached or passed the scheduled second
           if (playSecondsElapsed >= nextQuizAt) {
             showRandomQuiz();
-            nextQuizAt += 10;
+            nextQuizAt += 15;
             // DO NOT decrement timeLeft here (quiz pauses countdown)
           }
           // only decrement the main countdown while not in quiz
