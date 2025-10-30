@@ -165,57 +165,176 @@
     // ---- Simple question bank (multiple choice). Edit/add here ----
     // Each question: { q: "question text", choices: ["A","B","C","D"], answerIndex: 0 }
     const questions = [
-      {
-        q: "APS Vision “Power of 0 & 100” කියන්නේ කුමක්ද?",
-        choices: [
-          "0 wastes & 100% employee engagement",
-          "0 defects & 100% efficiency",
-          "0 production & 100% speed",
-          "0 cost & 100% profit"
-        ],
-        answerIndex: 0
-      },
-      {
-        q: "5S ක්‍රමවේදයේ Seiri අර්ථය කුමක්ද?",
-        choices: [
-          "සෑම දේම තබා ගැනීම",
-          "අනවශ්‍ය දේ ඉවත් කිරීම",
-          "වස්තු සෝදනවා",
-          "ප්‍රතිපත්ති සකස් කිරීම"
-        ],
-        answerIndex: 1
-      },
-      {
-        q: "Lean ක්‍රමවේදයේ ප්‍රධාන අරමුණ කුමක්ද?",
-        choices: [
-          "වැඩිම නිෂ්පාදන කර ගැනීම",
-          "වෙනසක් නොවන ක්‍රියාවලීන් ඉවත් කර, වටිනාකම වැඩි කිරීම",
-          "සේවකයින් වැඩි කිරීම්",
-          "මූල්‍ය ආදායම වැඩි කිරීම"
-        ],
-        answerIndex: 1
-      },
-      {
-        q: "Kaizen කියන්නේ කුමක්ද?",
-        choices: [
-          "එක් වතාවක් විශාල වෙනසක් කිරීම",
-          "සේවකයින්ගේ නිශ්චිත පුහුණුව",
-          "සැලසුම් සහ ක්‍රියාවලි වඩාත් හොඳ කිරීමේ ස්වයංක්‍රීය අඛණ්ඩ උත්සාහ",
-          "නිෂ්පාදන වියදම් අඩු කිරීම"
-        ],
-        answerIndex: 2
-      },
-      {
-        q: "APS ක්‍රමවේදය භාවිතා කරන ප්‍රධාන වාසි මොනවාද?",
-        choices: [
-          "කාර්ය මණ්ඩලය වැඩි කිරීම",
-          "වියදම් අඩු කිරීම, කාර්යක්ෂමතාව වැඩි කිරීම, වටිනාකම වැඩි කිරීම",
-          "නිෂ්පාදන ගුණාත්මක බව අඩු කිරීම",
-          "අවශ්‍යතාවය නොසලකා හැරීම"
-        ],
-        answerIndex: 1
+    {
+      q: "මැෂින් මත අනවශ්‍ය දේවල් තබා ඇත්නම් එය කුමන දෝෂ වර්ගයකට අයත්ද?",
+      choices: [
+        "Unnecessary items/Parts (අනවශ්‍ය සහ හදිසි නොවන අයිතම)",
+        "Lack of Basic Condition ( ඉටු නොකළ මූලික අඩුපාඩු )",
+        "Unsafe Conditions (අනාරක්ෂිත තත්ව)",
+        "Sources of Contamination (අපිරිසිදු කාරක ප්‍රභව)"
+      ],
+      answerIndex: 0
+    },
+    {
+      q: "මැෂින් කොටස්  පිරිසිදු කිරීමට අමාරු නම් එය කුමන දෝෂ වර්ගයකට අයත්ද?",
+      choices: [
+        "Minor Defects (සුළු අඩුපාඩු)",
+        "Hard to Reach Area (ළඟා වීමට අපහසු ස්ථාන)",
+        "Sources of Contamination (අපිරිසිදු කාරක ප්‍රභව)",
+        "Unsafe Conditions (අනාරක්ෂිත තත්ව)"
+      ],
+      answerIndex: 1
+    },
+    {
+      q: "මැෂින්වල වායු පීඩන මැනුම් උපකරණ බිඳී ඇත්නම් එය කුමන දෝෂ වර්ගයකට අයත්ද?",
+      choices: [
+        "Lack of Basic Condition ( ඉටු නොකළ මූලික අඩුපාඩු )",
+        "Minor Defects (සුළු අඩුපාඩු)",
+        "Quality Defect Sources (තත්ව අසාමාන්‍යතා ප්‍රභව)",
+        "Unsafe Conditions (අනාරක්ෂිත තත්ව)"
+      ],
+      answerIndex: 0
+    },
+    {
+      q: "බිම තෙතවී තිබේ, සේවකයා වැඩ කරන්නේ නම් එය කුමන දෝෂ වර්ගයකට අයත්ද?",
+      choices: [
+        "Unsafe Conditions (අනාරක්ෂිත තත්ව)",
+        "Minor Defects (සුළු අඩුපාඩු)",
+        "Lack of Basic Condition ( ඉටු නොකළ මූලික අඩුපාඩු )",
+        "Quality Defect Sources (තත්ව අසාමාන්‍යතා ප්‍රභව)"
+      ],
+      answerIndex: 0
+    },
+    {
+      q: "මැෂින් මත තෙල් පැල්ලම් හෝ දූවිලි තිබේ නම් එය කුමන දෝෂ වර්ගයකට අයත්ද?",
+      choices: [
+        "Minor Defects (සුළු අඩුපාඩු)",
+        "Hard to Reach Area (ළඟා වීමට අපහසු ස්ථාන)",
+        "Sources of Contamination (අපිරිසිදු කාරක ප්‍රභව)",
+        "Unsafe Conditions (අනාරක්ෂිත තත්ව)"
+      ],
+      answerIndex: 2
+    },
+    {
+      q: "සේවකයා ආරක්ෂා උපකරණ නොපැළඳීම කුමන දෝෂ වර්ගයකට අයත්ද?",
+      choices: [
+        "Unsafe Act (අනාරක්ෂිත ක්‍රියාව)",
+        "Minor Defects (සුළු අඩුපාඩු)",
+        "Quality Defect Sources (තත්ව අසාමාන්‍යතා ප්‍රභව)",
+        "Lack of Basic Condition ( ඉටු නොකළ මූලික අඩුපාඩු )"
+      ],
+      answerIndex: 0
+    },
+    {
+      q: "APS මාසික ඇගයීම් වලදී (R&R - Reward and Recognition) වලදී සලකා බලන්නේ?",
+      choices: [
+        "දෝෂ වැඩිපුර වාර්තා කිරීම",
+        "වැඩිපුර IPS/UPS  කිරීම",
+        "නව Centerlines හඳුන්වා දීම",
+        "ඉහත සියල්ලම"
+      ],
+      answerIndex: 3
+    },
+    {
+      q: "APS හි (ඇන්සෙල් නිෂ්පාදන ක්‍රමවේදයේ) ප්‍රධාන ඉලක්කය කුමක්ද?",
+      choices: [
+        "100% උපකරණ කාර්යක්ෂමතාව",
+        "නාස්තීන් අඩු කිරීම",
+        "100%ක් සේවක සහභාගිත්වය තුළින් සියලුම නාස්තීන් ශුන්‍ය කිරීම",
+        "වාර්ෂික ආදායම දෙගුණ කිරීම"
+      ],
+      answerIndex: 2
+    },
+    {
+      q: "APS ක්‍රමවේදය සඳහා 100% සහභාගීත්වය අවශ්‍ය වන්නේ කාගේද?",
+      choices: [
+        "කළමනාකාරීත්වයේ",
+        "ඉංජිනේරු දෙපාර්තමේන්තුවේ",
+        "සියලුම සේවකයන්ගේ",
+        "සැපයුම්කරුවන්ගේ"
+      ],
+      answerIndex: 2
+    },
+    {
+      q: "APS නිර්මාණය වීම සඳහා පදනම් කරගත් ප්‍රධාන කළමනාකරණ පද්ධති දෙක කුමක්ද?",
+      choices: [
+        "ISO සහ Kaizen",
+        "JIT සහ TQM",
+        "Lean Six Sigma සහ IWS",
+        "MRP II සහ Kanban"
+      ],
+      answerIndex: 2
+    },
+    {
+      q: "\"Power of 0 & 100\" යන්නෙන් අදහස් වන්නේ කුමක්ද?",
+      choices: [
+        "යන්ත්‍රයක වේගය 0 සිට 100 දක්වා වැඩි කිරීම",
+        "100% සේවක සහභාගිත්වය තුළින් සියලුම නාස්තීන් ශුන්‍ය කර ගැනීම",
+        "බිඳවැටීම් 0ක් සහ පැය 100ක වැඩමුරයක්",
+        "තත්ත්ව ප්‍රමිතිය 100%ක පවත්වා ගැනීම"
+      ],
+      answerIndex: 1
+    },
+    {
+      q: "APS තුළ Standard Work වැදගත් වන්නේ ඇයි?",
+      choices: [
+        "සේවකයින්ට ඕනෑම වෙලාවක ඔවුන්ගේ වැඩ කිරීමේ ක්‍රමය වෙනස් කිරීමට හැකිවීම",
+        "සෑම විටම එකම ආකාරයකට, දෝෂ රහිතව සහ ඉහළ ගුණාත්මක බවකින් යුත් නිෂ්පාදන ලබාදීමට හැකිවීම",
+        "සෑම සේවකයෙකුටම වේගයෙන් වැඩ කිරීමට හැකිවීම",
+        "වැඩබිමේ ඇති සියලුම අනවශ්‍ය මෙවලම් ඉවත් කිරීමට හැකිවීම"
+      ],
+      answerIndex: 1
+    },
+    {
+      q: "APS හි දවසේ දිශානතිය තීරණය කරන meeting එකේ නම කුමක්ද?",
+      choices: [
+        "DDS",
+        "SDS",
+        "MDS",
+        "WDS"
+      ],
+      answerIndex: 0
+    },
+    {
+      q: "DDS meeting එකේදී අවදානය යොමු කරන මූලික දේවල් මොනවාද?",
+      choices: [
+        "Defect Handling",
+        "Safety Trigger & Quality Trigger",
+        "Centerlines",
+        "ඉහත සියල්ලම"
+      ],
+      answerIndex: 3
+    },
+    {
+      q: "ගැටළු ඉක්මනින් මතු කිරීමට සහ විසඳීමට උපකාරී වන දෛනික ව්‍යුහගත ක්‍රියාවලිය කුමක්ද?",
+      choices: [
+        "AM",
+        "BDE",
+        "DDS",
+        "CO"
+      ],
+      answerIndex: 2
+    }
+  ];
+
+    // ---- Shuffle Questions (Fisher–Yates algorithm) ----
+    function shuffleQuestions() {
+      for (let i = questions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questions[i], questions[j]] = [questions[j], questions[i]];
       }
-    ];
+    }
+    shuffleQuestions();
+    
+    // ---- Reset & reshuffle automatically when all used ----
+    let currentQuestionIndex = 0;
+    function getNextQuestion() {
+      if (currentQuestionIndex >= questions.length) {
+        shuffleQuestions();
+        currentQuestionIndex = 0;
+      }
+      return questions[currentQuestionIndex++];
+    }
 
 
     // ---- UI update helpers ----
