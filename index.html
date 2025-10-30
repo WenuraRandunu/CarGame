@@ -543,7 +543,7 @@
       // Pause music
       try { document.getElementById("bgMusic").pause(); } catch(e){}
       // pick a random question
-      const q = questions[Math.floor(Math.random() * questions.length)];
+      const q = getNextQuestion();
       // render modal
       quizQuestionElem.innerText = q.q;
       quizChoicesElem.innerHTML = "";
