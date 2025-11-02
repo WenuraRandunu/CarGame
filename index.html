@@ -74,7 +74,15 @@
     <div id="formTitle">FORMULA 1 ATL GRAND PRIX</div>
     <img src="https://raw.githubusercontent.com/WenuraRandunu/CarGame/main/assets/cps.png" id="formLogo" alt="Logo 2" />
     <input type="text" id="empNo" placeholder="Employee Number" required maxlength="5" pattern="\d{5}" inputmode="numeric" />
-    <input type="text" id="dept" placeholder="Department" required maxlength="30" pattern="[A-Za-z\s]+" inputmode="text" />
+    <!-- <input type="text" id="dept" placeholder="Department" required maxlength="30" pattern="[A-Za-z\s]+" inputmode="text" /> -->
+    <select id="dept" required style="padding: 10px; font-size: 16px; width: 250px; margin: 5px 0; background-color: lightblue; color: black; border-radius: 8px; border: none;">
+      <option value="" disabled selected>Select Department</option>
+      <option value="Production">Production</option>
+      <option value="Maintenance">Maintenance</option>
+      <option value="Quality">Quality</option>
+      <option value="HR">HR</option>
+      <option value="Finance">Finance</option>
+    </select>
     <button onclick="submitUserInfo()" style="background-color: #5e56dc; color: white; border: none; border-radius: 10px; cursor: pointer;">Play Game</button>
   </div>
 
